@@ -1,4 +1,4 @@
-module gitbucket.com/fernandoocampo/fruits
+module github.com/fernandoocampo/fruits
 
 go 1.17
 

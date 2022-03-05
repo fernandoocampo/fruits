@@ -9,9 +9,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"gitbucket.com/fernandoocampo/fruits/internal/adapter/loggers"
-	"gitbucket.com/fernandoocampo/fruits/internal/adapter/web"
-	"gitbucket.com/fernandoocampo/fruits/internal/fruits"
+	"github.com/fernandoocampo/fruits/internal/adapter/loggers"
+	"github.com/fernandoocampo/fruits/internal/adapter/web"
+	"github.com/fernandoocampo/fruits/internal/fruits"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/stretchr/testify/assert"
 )

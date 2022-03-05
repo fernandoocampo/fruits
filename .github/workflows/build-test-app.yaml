@@ -1,0 +1,25 @@
+# This workflow will build a go project
+
+name: fruits with Go
+
+on:
+  push:
+    branches:
+      - "master"
+  pull_request:
+    branches:
+      - "master"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: master
+      - name: Setup go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.17.x
+      - name: Test project
+        run: go test -race ./...

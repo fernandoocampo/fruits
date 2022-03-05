@@ -10,13 +10,13 @@ import (
 	"syscall"
 	"time"
 
-	"gitbucket.com/fernandoocampo/fruits/internal/adapter/loggers"
-	"gitbucket.com/fernandoocampo/fruits/internal/adapter/memorydb"
-	"gitbucket.com/fernandoocampo/fruits/internal/adapter/metrics"
-	"gitbucket.com/fernandoocampo/fruits/internal/adapter/monitoring"
-	"gitbucket.com/fernandoocampo/fruits/internal/adapter/web"
-	"gitbucket.com/fernandoocampo/fruits/internal/configurations"
-	"gitbucket.com/fernandoocampo/fruits/internal/fruits"
+	"github.com/fernandoocampo/fruits/internal/adapter/loggers"
+	"github.com/fernandoocampo/fruits/internal/adapter/memorydb"
+	"github.com/fernandoocampo/fruits/internal/adapter/metrics"
+	"github.com/fernandoocampo/fruits/internal/adapter/monitoring"
+	"github.com/fernandoocampo/fruits/internal/adapter/web"
+	"github.com/fernandoocampo/fruits/internal/configurations"
+	"github.com/fernandoocampo/fruits/internal/fruits"
 )
 
 const applicationName = "fruits-service"

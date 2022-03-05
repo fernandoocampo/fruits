@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"gitbucket.com/fernandoocampo/fruits/internal/adapter/loggers"
-	"gitbucket.com/fernandoocampo/fruits/internal/fruits"
+	"github.com/fernandoocampo/fruits/internal/adapter/loggers"
+	"github.com/fernandoocampo/fruits/internal/fruits"
 	httptransport "github.com/go-kit/kit/transport/http"
 )
 
