@@ -81,6 +81,7 @@ You can use insomnia api client and use the project `insomnia-fruits-service.jso
 
 ## deploy in kubernetes
 
+* only use this with minikube
 eval $(minikube docker-env)
 docker build -t local/fruits:latest .
 
