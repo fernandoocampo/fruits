@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fruits-configmap
+data:
+  log_level: "2"
+  metrics_interval_millis: "60000"
+  file_path: "/opt/fruits/fruitmag-data.csv"
+  load_dataset: "true"

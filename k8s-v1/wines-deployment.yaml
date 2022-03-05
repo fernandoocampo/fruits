@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fruits-deployment
+  labels:
+    app: fruits
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fruits
+  template:
+    metadata:
+      labels:
+        app: fruits
+    spec:
+      containers:
+      - name: fruits
+        image: local/fruits
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: fruits-configmap
+              key: log_level
+        - name: METRICS_INTERVAL_MILLIS
+          valueFrom:
+            configMapKeyRef:
+              name: fruits-configmap
+              key: metrics_interval_millis
+        - name: FILE_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: fruits-configmap
+              key: file_path
+        - name: LOAD_DATASET
+          valueFrom:
+            configMapKeyRef:
+              name: fruits-configmap
+              key: load_dataset

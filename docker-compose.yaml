@@ -1,0 +1,13 @@
+version: '3'
+services:
+    fruits:
+        build: .
+        container_name: "fruits-service"
+        ports:
+            - "8080:8080"
+        environment: 
+            - APPLICATION_PORT=:8080
+            - LOG_LEVEL=2
+            - METRICS_INTERVAL_MILLIS=60000
+            - FILE_PATH=/opt/fruits/fruitmag-data.csv
+            - LOAD_DATASET=true
