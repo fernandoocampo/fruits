@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"gitbucket.com/fernandoocampo/fruits/internal/adapter/loggers"
+	"github.com/fernandoocampo/fruits/internal/adapter/loggers"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 )

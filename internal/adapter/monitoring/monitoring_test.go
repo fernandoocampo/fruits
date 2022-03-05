@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"gitbucket.com/fernandoocampo/fruits/internal/adapter/loggers"
-	"gitbucket.com/fernandoocampo/fruits/internal/adapter/monitoring"
+	"github.com/fernandoocampo/fruits/internal/adapter/loggers"
+	"github.com/fernandoocampo/fruits/internal/adapter/monitoring"
 	"github.com/stretchr/testify/assert"
 )
 

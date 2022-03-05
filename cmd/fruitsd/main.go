@@ -1,6 +1,6 @@
 package main
 
-import "gitbucket.com/fernandoocampo/fruits/internal/application"
+import "github.com/fernandoocampo/fruits/internal/application"
 
 func main() {
 	newInstance := application.NewInstance()

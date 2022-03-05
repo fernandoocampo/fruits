@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"sync"
 
-	"gitbucket.com/fernandoocampo/fruits/internal/adapter/loggers"
+	"github.com/fernandoocampo/fruits/internal/adapter/loggers"
 )
 
 // Repository is the repository handler for the map storage.

@@ -1,6 +1,6 @@
 package web
 
-import "gitbucket.com/fernandoocampo/fruits/internal/fruits"
+import "github.com/fernandoocampo/fruits/internal/fruits"
 
 // Result standard result for the service
 type Result struct {

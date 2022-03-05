@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"strings"
 
-	"gitbucket.com/fernandoocampo/fruits/internal/adapter/loggers"
-	"gitbucket.com/fernandoocampo/fruits/internal/adapter/repository"
+	"github.com/fernandoocampo/fruits/internal/adapter/loggers"
+	"github.com/fernandoocampo/fruits/internal/adapter/repository"
 )
 
 const (
