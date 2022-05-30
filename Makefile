@@ -26,11 +26,13 @@ tidy:
 build-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(BINARY_UNIX) -v ./$(SRC_FOLDER)
 docker-build:
-	docker build -t $(DOCKER_REPO)/$(DOCKER_CONTAINER) .
+	DOCKER_BUILDKIT=0 docker build --no-cache -t $(DOCKER_REPO)/$(DOCKER_CONTAINER) .
 docker-push:
 	docker push $(DOCKER_REPO)/$(DOCKER_CONTAINER)
 run-local:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(BINARY_UNIX) -v ./$(SRC_FOLDER)
 	docker-compose up --build -d
+run-docker-local:
+	docker run --rm -it -p 8080:8080 vivekteam/fruits
 clean-local:
 	docker-compose down
