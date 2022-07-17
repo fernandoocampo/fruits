@@ -1,3 +1,5 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/fernandoocampo/fruits)](https://goreportcard.com/report/github.com/fernandoocampo/fruits)
+
 # fruits
 
 Service to handle fruits information.
