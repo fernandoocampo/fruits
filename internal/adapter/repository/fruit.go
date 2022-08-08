@@ -46,7 +46,7 @@ type FindFruitsResult struct {
 	Count  int
 }
 
-// FruitFilter contains filters to search fruits
+// FruitFilter contains filters to search fruits.
 type FruitFilter struct {
 	// Start record to query
 	Start int
@@ -54,7 +54,7 @@ type FruitFilter struct {
 	Count int
 }
 
-// FruitDatasetStatus contains
+// FruitDatasetStatus contains data for dataset status.
 type FruitDatasetStatus struct {
 	Ok      bool
 	Message string

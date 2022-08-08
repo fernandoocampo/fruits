@@ -19,6 +19,8 @@ type Repository struct {
 	logger  *loggers.Logger
 }
 
+var errNotFoundEntity = errors.New("given entity doesn't exist")
+
 // NewRepository creates a new  repository that will use a rdb.
 func NewRepository(logger *loggers.Logger) *Repository {
 	newRepo := Repository{
@@ -57,6 +59,7 @@ func (u *Repository) Update(ctx context.Context, entityID int64, entity interfac
 			"entity": entity,
 		},
 	)
+
 	if entityID == 0 {
 		u.logger.Error(
 			"cannot update given entity, because it doesn't contain a valid id",
@@ -67,11 +70,14 @@ func (u *Repository) Update(ctx context.Context, entityID int64, entity interfac
 		)
 		return fmt.Errorf("cannot update given entity %v, because it doesn't contain a valid id", entity)
 	}
+
 	u.locker.Lock()
 	defer u.locker.Unlock()
+
 	if u.entityNotExist(entityID) {
-		return errors.New("given entity doesn't exist")
+		return errNotFoundEntity
 	}
+
 	u.storage[entityID] = entity
 	return nil
 }
@@ -87,14 +93,17 @@ func (u *Repository) FindByID(ctx context.Context, entityID int64) (interface{},
 	)
 	var entity interface{}
 	var ok bool
+
 	u.locker.Lock()
 	{
 		entity, ok = u.storage[entityID]
 	}
 	u.locker.Unlock()
+
 	if !ok {
-		return nil, nil
+		return entity, nil
 	}
+
 	u.logger.Debug(
 		"entity found",
 		loggers.Fields{
@@ -103,6 +112,7 @@ func (u *Repository) FindByID(ctx context.Context, entityID int64) (interface{},
 			"entity":    entity,
 		},
 	)
+
 	return entity, nil
 }
 
@@ -117,6 +127,7 @@ func (u *Repository) FindAll(ctx context.Context, start, count int) ([]interface
 		},
 	)
 	result := make([]interface{}, 0)
+
 	u.locker.Lock()
 	{
 		newcount := start + count - 1
@@ -133,23 +144,27 @@ func (u *Repository) FindAll(ctx context.Context, start, count int) ([]interface
 		}
 	}
 	u.locker.Unlock()
+
 	return result, nil
 }
 
 // Count counts records in the memory repo
 func (u *Repository) Count() int {
 	var count int
+
 	u.locker.Lock()
 	{
 		count = len(u.storage)
 	}
 	u.locker.Unlock()
+
 	return count
 }
 
 // entityNotExist return true if the given entity id does not exist in the repository
 func (u *Repository) entityNotExist(entityID int64) bool {
 	_, ok := u.storage[entityID]
+
 	return !ok
 }
 

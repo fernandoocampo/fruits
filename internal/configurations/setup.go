@@ -1,6 +1,8 @@
 package configurations
 
 import (
+	"fmt"
+
 	"github.com/caarlos0/env"
 )
 
@@ -15,9 +17,9 @@ type Application struct {
 
 // Load load application configuration
 func Load() (Application, error) {
-	cfg := Application{}
-	if err := env.Parse(&cfg); err != nil {
-		return cfg, err
+	cfg := new(Application)
+	if err := env.Parse(cfg); err != nil {
+		return *cfg, fmt.Errorf("something went wrong loading app configuration: %w", err)
 	}
-	return cfg, nil
+	return *cfg, nil
 }

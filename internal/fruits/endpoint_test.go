@@ -11,6 +11,7 @@ import (
 )
 
 func TestGetFruitSuccessfully(t *testing.T) {
+	t.Parallel()
 	fruitID := int64(1234)
 	expectedResponse := fruits.GetFruitWithIDResult{
 		Fruit: &fruits.Fruit{
@@ -38,6 +39,7 @@ func TestGetFruitSuccessfully(t *testing.T) {
 }
 
 func TestGetFruitNotFound(t *testing.T) {
+	t.Parallel()
 	fruitID := int64(1234)
 	expectedResponse := fruits.GetFruitWithIDResult{
 		Fruit: nil,
@@ -58,6 +60,7 @@ func TestGetFruitNotFound(t *testing.T) {
 }
 
 func TestCreateFruitSuccessfully(t *testing.T) {
+	t.Parallel()
 	fruitRepository := fruitRepoMock{
 		repo: make(map[int64]repository.Fruit),
 	}
@@ -86,6 +89,7 @@ func TestCreateFruitSuccessfully(t *testing.T) {
 }
 
 func TestSearchFruitsEndpointSuccessfully(t *testing.T) {
+	t.Parallel()
 	givenFilter := fruits.SearchFruitFilter{
 		Start: 1,
 		Count: 10,

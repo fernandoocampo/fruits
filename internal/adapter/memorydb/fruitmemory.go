@@ -16,6 +16,9 @@ import (
 const (
 	fieldSeparator = ","
 	fieldsNumber   = 14
+	bits32         = 32
+	bits64         = 64
+	base10         = 10
 )
 
 // fruit dataset columns index
@@ -36,6 +39,18 @@ const (
 	vaultColumn
 )
 
+var (
+	errIDMustBeAnInteger    = fmt.Errorf("id must be an integer")
+	errYearMustBeAnInteger  = fmt.Errorf("year must be an integer")
+	errPriceMustBeAnInteger = errors.New("price must be an integer")
+)
+
+// ColumnsError defines colum error
+type ColumnsError struct {
+	FruitValues int
+	Record      string
+}
+
 // FruitMemoryRepository is the repository handler for fruits in a memory db.
 type FruitMemoryRepository struct {
 	storage       *Repository
@@ -53,6 +68,17 @@ func NewFruitRepository(logger *loggers.Logger) *FruitMemoryRepository {
 		logger: logger,
 	}
 	return &newRepo
+}
+
+func NewColumnsError(columns int, record string) *ColumnsError {
+	return &ColumnsError{
+		FruitValues: columns,
+		Record:      record,
+	}
+}
+
+func (c *ColumnsError) Error() string {
+	return fmt.Sprintf("invalid fields number, expected: %d, but got %d, record %q", fieldsNumber, c.FruitValues, c.Record)
 }
 
 // Save save the given fruit in the postgresql database.
@@ -130,8 +156,9 @@ func (u *FruitMemoryRepository) FindByID(ctx context.Context, fruitID repository
 		)
 		return nil, errors.New("something went wrong trying to get the given fruit id")
 	}
+	var got *repository.Fruit
 	if result == nil {
-		return nil, nil
+		return got, nil
 	}
 	fruit, ok := result.(repository.Fruit)
 	if !ok {
@@ -259,21 +286,21 @@ func (u *FruitMemoryRepository) Count() int {
 func (u *FruitMemoryRepository) buildFruit(record string) (*repository.Fruit, error) {
 	fruitValues := SplitAtCommas(record)
 	if len(fruitValues) != fieldsNumber {
-		return nil, fmt.Errorf("invalid fields number, expected: %d, but got %d, record %q", fieldsNumber, len(fruitValues), record)
+		return nil, NewColumnsError(len(fruitValues), record)
 	}
-	id, err := strconv.ParseInt(fruitValues[idColumn], 10, 64)
+	id, err := strconv.ParseInt(fruitValues[idColumn], base10, bits64)
 	if err != nil {
-		return nil, fmt.Errorf("id must be an integer, but got %v", fruitValues[idColumn])
+		return nil, errIDMustBeAnInteger
 	}
 	year, err := strconv.Atoi(fruitValues[yearColumn])
 	if err != nil {
-		return nil, fmt.Errorf("year must be an integer, but got %v", fruitValues[yearColumn])
+		return nil, errYearMustBeAnInteger
 	}
 	var price float64
 	if fruitValues[priceColumn] != "" {
-		price, err = strconv.ParseFloat(fruitValues[priceColumn], 32)
+		price, err = strconv.ParseFloat(fruitValues[priceColumn], bits32)
 		if err != nil {
-			return nil, fmt.Errorf("price must be an integer, but got %v", fruitValues[priceColumn])
+			return nil, errPriceMustBeAnInteger
 		}
 	}
 	fruit := repository.Fruit{
@@ -296,22 +323,22 @@ func (u *FruitMemoryRepository) buildFruit(record string) (*repository.Fruit, er
 }
 
 // SplitAtCommas split s at commas, ignoring commas in strings.
-func SplitAtCommas(s string) []string {
+func SplitAtCommas(value string) []string {
 	res := []string{}
 	var beg int
 	var inString bool
 
-	for i := 0; i < len(s); i++ {
-		if s[i] == ',' && !inString {
-			res = append(res, s[beg:i])
-			beg = i + 1
-		} else if s[i] == '"' {
+	for idx := 0; idx < len(value); idx++ {
+		if value[idx] == ',' && !inString {
+			res = append(res, value[beg:idx])
+			beg = idx + 1
+		} else if value[idx] == '"' {
 			if !inString {
 				inString = true
-			} else if i > 0 && s[i-1] != '\\' {
+			} else if idx > 0 && value[idx-1] != '\\' {
 				inString = false
 			}
 		}
 	}
-	return append(res, s[beg:])
+	return append(res, value[beg:])
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -13,12 +14,19 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const (
+	startRecordPosition = 1
+	rowPerPage          = 10
+)
+
+var errNoFruitIDWasProvided = errors.New("fruit ID was not provided")
+
 func makeDecodeGetFruitWithIDRequest(logger *loggers.Logger) httptransport.DecodeRequestFunc {
-	return func(ctx context.Context, r *http.Request) (interface{}, error) {
-		v := mux.Vars(r)
+	return func(ctx context.Context, req *http.Request) (interface{}, error) {
+		v := mux.Vars(req)
 		fruitIDParam, ok := v["id"]
 		if !ok {
-			return nil, errors.New("fruit ID was not provided")
+			return nil, errNoFruitIDWasProvided
 		}
 		fruitID, err := strconv.ParseInt(fruitIDParam, 10, 64)
 		if err != nil {
@@ -37,13 +45,13 @@ func makeDecodeGetFruitWithIDRequest(logger *loggers.Logger) httptransport.Decod
 }
 
 func makeDecodeSearchFruitsRequest(logger *loggers.Logger) httptransport.DecodeRequestFunc {
-	return func(ctx context.Context, r *http.Request) (interface{}, error) {
+	return func(ctx context.Context, req *http.Request) (interface{}, error) {
 		filterRequest := SearchFruitFilter{
-			Start: 1,
-			Count: 10,
+			Start: startRecordPosition,
+			Count: rowPerPage,
 		}
 
-		filters := r.URL.Query()
+		filters := req.URL.Query()
 
 		if v, ok := filters["start"]; ok {
 			start, err := strconv.Atoi(v[0])
@@ -81,22 +89,24 @@ func makeDecodeSearchFruitsRequest(logger *loggers.Logger) httptransport.DecodeR
 }
 
 func makeDecodeCreateFruitRequest(logger *loggers.Logger) httptransport.DecodeRequestFunc {
-	return func(ctx context.Context, r *http.Request) (interface{}, error) {
+	return func(ctx context.Context, req *http.Request) (interface{}, error) {
 		logger.Debug(
 			"decoding create fruit request",
 			loggers.Fields{
 				"method": "decodeCreateFruitRequest",
 			},
 		)
-		var req NewFruit
-		defer r.Body.Close()
 
-		body, err := ioutil.ReadAll(r.Body)
+		defer req.Body.Close()
+
+		var newFruitRequest NewFruit
+
+		body, err := ioutil.ReadAll(req.Body)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("something went wrong decoding create fruit request: %w", err)
 		}
 
-		err = json.Unmarshal(body, &req)
+		err = json.Unmarshal(body, &newFruitRequest)
 		if err != nil {
 			logger.Error(
 				"new fruit request could not be decoded",
@@ -113,19 +123,20 @@ func makeDecodeCreateFruitRequest(logger *loggers.Logger) httptransport.DecodeRe
 			"fruit request was decoded",
 			loggers.Fields{
 				"method":  "decodeCreateFruitRequest",
-				"request": req,
+				"request": newFruitRequest,
 			},
 		)
 
-		domainFruit := req.toFruit()
+		domainFruit := newFruitRequest.toFruit()
 
 		return domainFruit, nil
 	}
 }
 
 func makeEmptyDecoder(logger *loggers.Logger) httptransport.DecodeRequestFunc {
-	return func(ctx context.Context, r *http.Request) (interface{}, error) {
+	return func(ctx context.Context, req *http.Request) (interface{}, error) {
 		logger.Debug("calling empty decoder", loggers.Fields{})
+
 		return nil, nil
 	}
 }

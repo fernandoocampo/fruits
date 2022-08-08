@@ -60,6 +60,7 @@ func NewLogger(artifactName string, level Level, output io.Writer) *Logger {
 // NewBasicLogger create basic logger
 func NewBasicLogger(output io.Writer) *log.Logger {
 	newLogger := log.New(output, "", 0)
+
 	return newLogger
 }
 
@@ -99,10 +100,12 @@ func (l *Logger) Error(msg string, fields Fields) {
 func (l *Logger) SetLoggerLevel(newLevel Level) {
 	if newLevel < 0 {
 		l.level = Debug
+
 		return
 	}
 	if newLevel > Error {
 		l.level = Error
+
 		return
 	}
 	l.level = newLevel

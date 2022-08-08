@@ -36,11 +36,14 @@ type webResultCreateFruit struct {
 
 type webResultGetStatus struct {
 	Status    string `json:"status"`
-	Message   string `json:"msg"`
-	Timestamp int64  `json:"ts"`
+	Message   string `json:"message"`
+	Timestamp int64  `json:"timestamp"`
 }
 
+var errAnyError = errors.New("any error")
+
 func TestGetFruitSuccessfully(t *testing.T) {
+	t.Parallel()
 	fruitID := "1234"
 	expectedResponse := webResultGetFruit{
 		Success: true,
@@ -82,7 +85,14 @@ func TestGetFruitSuccessfully(t *testing.T) {
 	dummyServer := httptest.NewServer(httpHandler)
 	defer dummyServer.Close()
 
-	response, err := http.Get(dummyServer.URL + "/fruit/" + fruitID)
+	ctx := context.TODO()
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, dummyServer.URL+"/fruit/"+fruitID, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
 	if err != nil {
 		t.Error("unexpected error", err)
 		t.FailNow()
@@ -149,7 +159,14 @@ func TestSearchFruitsSuccessfully(t *testing.T) {
 	dummyServer := httptest.NewServer(httpHandler)
 	defer dummyServer.Close()
 
-	response, err := http.Get(dummyServer.URL + "/fruit" + queryParams)
+	ctx := context.TODO()
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, dummyServer.URL+"/fruit"+queryParams, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
 	if err != nil {
 		t.Error("unexpected error", err)
 		t.FailNow()
@@ -168,6 +185,7 @@ func TestSearchFruitsSuccessfully(t *testing.T) {
 }
 
 func TestGetFruitNotFound(t *testing.T) {
+	t.Parallel()
 	fruitID := "1234"
 	expectedResponse := webResultGetFruit{
 		Success: true,
@@ -182,7 +200,14 @@ func TestGetFruitNotFound(t *testing.T) {
 	dummyServer := httptest.NewServer(httpHandler)
 	defer dummyServer.Close()
 
-	response, err := http.Get(dummyServer.URL + "/fruit/" + fruitID)
+	ctx := context.TODO()
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, dummyServer.URL+"/fruit/"+fruitID, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
 	if err != nil {
 		t.Error("unexpected error", err)
 		t.FailNow()
@@ -201,13 +226,14 @@ func TestGetFruitNotFound(t *testing.T) {
 }
 
 func TestGetFruitWithError(t *testing.T) {
+	t.Parallel()
 	fruitID := "1234"
 	expectedResponse := webResultGetFruit{
 		Success: false,
 		Data:    nil,
 		Errors:  []string{"any error"},
 	}
-	errorToReturn := errors.New("any error")
+	errorToReturn := errAnyError
 	fruitEndyear := fruits.Endyear{
 		GetFruitWithIDEndpoint: makeDummyGetFruitWithIDSuccessfullyEndpoint(t, nil, errorToReturn),
 	}
@@ -216,7 +242,14 @@ func TestGetFruitWithError(t *testing.T) {
 	dummyServer := httptest.NewServer(httpHandler)
 	defer dummyServer.Close()
 
-	response, err := http.Get(dummyServer.URL + "/fruit/" + fruitID)
+	ctx := context.TODO()
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, dummyServer.URL+"/fruit/"+fruitID, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
 	if err != nil {
 		t.Error("unexpected error", err)
 		t.FailNow()
@@ -235,6 +268,7 @@ func TestGetFruitWithError(t *testing.T) {
 }
 
 func TestPostFruitSuccessfully(t *testing.T) {
+	t.Parallel()
 	newFruit := web.NewFruit{
 		Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
 		Variety:        "White Blend",
@@ -268,9 +302,10 @@ func TestPostFruitSuccessfully(t *testing.T) {
 		Errors:  nil,
 	}
 
-	createRequest, err := http.NewRequest(http.MethodPut, dummyServer.URL+"/fruit", bytes.NewBuffer(newFruitJson))
+	ctx := context.TODO()
+	createRequest, err := http.NewRequestWithContext(ctx, http.MethodPut, dummyServer.URL+"/fruit", bytes.NewBuffer(newFruitJson))
 	if err != nil {
-		t.Errorf("unexpected error creating put request: %s", err)
+		t.Fatalf("unexpected error: %s", err)
 	}
 
 	client := &http.Client{}
@@ -292,6 +327,7 @@ func TestPostFruitSuccessfully(t *testing.T) {
 }
 
 func TestPostFruitWithError(t *testing.T) {
+	t.Parallel()
 	newFruit := web.NewFruit{
 		Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
 		Variety:        "White Blend",
@@ -311,7 +347,7 @@ func TestPostFruitWithError(t *testing.T) {
 		t.FailNow()
 	}
 	fruitEndyear := fruits.Endyear{
-		CreateFruitEndpoint: makeDummyCreateFruitSuccessfullyEndpoint(t, 0, errors.New("any error")),
+		CreateFruitEndpoint: makeDummyCreateFruitSuccessfullyEndpoint(t, 0, errAnyError),
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
 	fruitHandler := web.NewHTTPServer(fruitEndyear, logger)
@@ -325,7 +361,8 @@ func TestPostFruitWithError(t *testing.T) {
 		Errors:  []string{"any error"},
 	}
 
-	createRequest, err := http.NewRequest(http.MethodPut, dummyServer.URL+"/fruit", bytes.NewBuffer(newFruitJson))
+	ctx := context.TODO()
+	createRequest, err := http.NewRequestWithContext(ctx, http.MethodPut, dummyServer.URL+"/fruit", bytes.NewBuffer(newFruitJson))
 	if err != nil {
 		t.Errorf("unexected error creating put request: %s", err)
 	}
@@ -349,6 +386,7 @@ func TestPostFruitWithError(t *testing.T) {
 }
 
 func TestStatusSuccessfully(t *testing.T) {
+	t.Parallel()
 	expectedResponse := webResultGetStatus{
 		Status:    "ok",
 		Message:   "",
@@ -365,7 +403,14 @@ func TestStatusSuccessfully(t *testing.T) {
 	dummyServer := httptest.NewServer(httpHandler)
 	defer dummyServer.Close()
 
-	response, err := http.Get(dummyServer.URL + "/status")
+	ctx := context.TODO()
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, dummyServer.URL+"/status", nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
 	if err != nil {
 		t.Error("unexpected error", err)
 		t.FailNow()
@@ -428,8 +473,8 @@ func makeDummySearchFruitsSuccessfullyEndpoint(t *testing.T, expectedFilter frui
 }
 
 func makeDummyCreateFruitSuccessfullyEndpoint(t *testing.T, newFruitID int64, err error) endpoint.Endpoint {
+	t.Helper()
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		t.Helper()
 		_, ok := request.(*fruits.NewFruit)
 		if !ok {
 			t.Errorf("fruit parameter is not valid: %T", request)

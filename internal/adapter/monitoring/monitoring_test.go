@@ -12,6 +12,7 @@ import (
 )
 
 func TestStringReport(t *testing.T) {
+	t.Parallel()
 	expectedReport := "requests=2\nsuccess=1\nerror=1\navailability=50\nnum_fruits=1"
 	fruitRepository := fruitRepoMock{
 		size: 1,
@@ -43,6 +44,7 @@ func TestStringReport(t *testing.T) {
 }
 
 func TestStringReportMultipleEvents(t *testing.T) {
+	t.Parallel()
 	expectedReport := "requests=4\nsuccess=2\nerror=2\navailability=50\nnum_fruits=2"
 	fruitRepository := fruitRepoMock{
 		size: 2,
@@ -62,26 +64,26 @@ func TestStringReportMultipleEvents(t *testing.T) {
 
 	go agent.Start(ctx)
 
-	var wg sync.WaitGroup
-	wg.Add(3)
+	var waitGroup sync.WaitGroup
+	waitGroup.Add(3)
 	go func() {
-		defer wg.Done()
+		defer waitGroup.Done()
 		agent.CountRequest()
 		agent.CountSuccess()
 	}()
 	go func() {
-		defer wg.Done()
+		defer waitGroup.Done()
 		agent.CountRequest()
 		agent.CountError()
 		agent.CountRequest()
 		agent.CountSuccess()
 	}()
 	go func() {
-		defer wg.Done()
+		defer waitGroup.Done()
 		agent.CountRequest()
 		agent.CountError()
 	}()
-	wg.Wait()
+	waitGroup.Wait()
 
 	metricRepository.wg.Add(1)
 	metricRepository.wg.Wait()

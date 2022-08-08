@@ -4,9 +4,9 @@ import "github.com/fernandoocampo/fruits/internal/application"
 
 func main() {
 	newInstance := application.NewInstance()
-	err := newInstance.Run()
-	if err != nil {
+	if err := newInstance.Run(); err != nil {
 		panic(err)
 	}
-	defer newInstance.Stop()
+
+	newInstance.Stop()
 }

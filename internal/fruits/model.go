@@ -110,21 +110,21 @@ const (
 )
 
 // ToFruitPortOut transforms new fruit to a fruit port out.
-func (u NewFruit) ToFruitPortOut() repository.NewFruit {
+func (n NewFruit) ToFruitPortOut() repository.NewFruit {
 	return repository.NewFruit{
-		Name:           u.Name,
-		Variety:        u.Variety,
-		Year:           u.Year,
-		Price:          repository.FruitPrice(u.Price),
-		Vault:          u.Vault,
-		Country:        u.Country,
-		Province:       u.Province,
-		Region:         u.Region,
-		Finca:          u.Finca,
-		Description:    u.Description,
-		Classification: u.Classification,
-		LocalName:      u.LocalName,
-		WikiPage:       u.WikiPage,
+		Name:           n.Name,
+		Variety:        n.Variety,
+		Year:           n.Year,
+		Price:          repository.FruitPrice(n.Price),
+		Vault:          n.Vault,
+		Country:        n.Country,
+		Province:       n.Province,
+		Region:         n.Region,
+		Finca:          n.Finca,
+		Description:    n.Description,
+		Classification: n.Classification,
+		LocalName:      n.LocalName,
+		WikiPage:       n.WikiPage,
 	}
 }
 
@@ -234,13 +234,13 @@ func newSearchFruitsDataResult(result *SearchFruitsResult, err error) SearchFrui
 }
 
 // newCreateFruitResult create a new CreateFruitResponse
-func newCreateFruitResult(id int64, err error) CreateFruitResult {
+func newCreateFruitResult(fruitID int64, err error) CreateFruitResult {
 	var errmessage string
 	if err != nil {
 		errmessage = err.Error()
 	}
 	return CreateFruitResult{
-		ID:  id,
+		ID:  fruitID,
 		Err: errmessage,
 	}
 }

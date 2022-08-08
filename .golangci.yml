@@ -1,0 +1,24 @@
+run:
+  # Include test files or not.
+  # Default: true
+  tests: false
+linters:
+  enable-all: true
+  disable:
+    - exhaustive
+    - exhaustivestruct
+    - exhaustruct
+linters-settings:
+  tagliatelle:
+    # Check the struck tag name case.
+    case:
+      # Use the struct field name to check the name of the struct tag.
+      # Default: false
+      use-field-name: false
+      rules:
+        # Any struct tag type can be used.
+        # Support string case: `camel`, `pascal`, `kebab`, `snake`, `goCamel`, `goPascal`, `goKebab`, `goSnake`, `upper`, `lower`
+        json:     snake
+        yaml:     camel
+        xml:      camel
+        whatever: kebab

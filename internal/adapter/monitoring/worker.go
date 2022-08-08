@@ -11,12 +11,14 @@ import (
 const (
 	reportFormat = "requests=%d\nsuccess=%d\nerror=%d\navailability=%d\nnum_fruits=%d"
 )
+
 const (
 	requests          = "requests"
 	successfulRequest = "success"
 	failedRequest     = "error"
 	availability      = "availability"
 	fruits            = "num_fruits"
+	oneHundred        = 100
 )
 
 // FruitRepository defines behavior to count the fruits.
@@ -106,7 +108,7 @@ func (m *Monitor) count(metricName string) {
 
 func (m *Monitor) generateReport() string {
 	if m.report[requests] > 0 {
-		m.report[availability] = int(100 * (float32(m.report[successfulRequest]) / float32(m.report[requests])))
+		m.report[availability] = int(oneHundred * (float32(m.report[successfulRequest]) / float32(m.report[requests])))
 	}
 	m.report[fruits] = m.fruitRepository.Count()
 	return fmt.Sprintf(

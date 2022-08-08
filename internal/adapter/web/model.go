@@ -88,8 +88,8 @@ type SearchFruitsResult struct {
 // FruitDatasetStatusResponse contains fruit dataset status result data.
 type FruitDatasetStatusResponse struct {
 	Status    string `json:"status"`
-	Message   string `json:"msg"`
-	Timestamp int64  `json:"ts"`
+	Message   string `json:"message"`
+	Timestamp int64  `json:"timestamp"`
 }
 
 // toFruit transforms new fruit to a fruit object.
@@ -133,7 +133,9 @@ func toSearchFruitResult(result *fruits.SearchFruitsResult) *SearchFruitsResult 
 	if result == nil {
 		return nil
 	}
+
 	fruitsFound := make([]FruitItemResult, 0)
+
 	for _, v := range result.Fruits {
 		fruitFound := toFruitItemResult(&v)
 		fruitsFound = append(fruitsFound, *fruitFound)

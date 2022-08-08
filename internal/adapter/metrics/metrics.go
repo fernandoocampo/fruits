@@ -17,5 +17,6 @@ func New(logger Repository) *MetricServer {
 
 func (m *MetricServer) Push(report string) error {
 	m.logger.Println(report)
+
 	return nil
 }

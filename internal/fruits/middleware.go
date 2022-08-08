@@ -30,22 +30,28 @@ func (w *FruitMiddleware) GetFruitWithID(ctx context.Context, fruitID int64) (*F
 	fruit, err := w.next.GetFruitWithID(ctx, fruitID)
 	if err != nil {
 		w.counter.CountError()
+
 		return fruit, err
 	}
+
 	w.counter.CountSuccess()
+
 	return fruit, err
 }
 
 // Create creates a fruit
 func (w *FruitMiddleware) Create(ctx context.Context, newfruit NewFruit) (int64, error) {
 	w.counter.CountRequest()
-	id, err := w.next.Create(ctx, newfruit)
+	fruitID, err := w.next.Create(ctx, newfruit)
 	if err != nil {
 		w.counter.CountError()
-		return id, err
+
+		return fruitID, err
 	}
+
 	w.counter.CountSuccess()
-	return id, err
+
+	return fruitID, err
 }
 
 // SearchFruits search fruits who match the given filters
@@ -54,9 +60,12 @@ func (w *FruitMiddleware) SearchFruits(ctx context.Context, givenFilter SearchFr
 	result, err := w.next.SearchFruits(ctx, givenFilter)
 	if err != nil {
 		w.counter.CountError()
+
 		return result, err
 	}
+
 	w.counter.CountSuccess()
+
 	return result, err
 }
 

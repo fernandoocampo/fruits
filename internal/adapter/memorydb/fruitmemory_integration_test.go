@@ -11,15 +11,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var (
-	integration = flag.Bool("integration", false, "run integration tests")
-	filePath    = flag.String("filepath", "../../../data/fruitmag-data.csv", "fruit file dataset")
-)
-
 func TestLoadFruitDatasetFromFile(t *testing.T) {
+	integration := flag.Bool("integration", false, "run integration tests")
+	filePath := flag.String("filepath", "../../../data/fruitmag-data.csv", "fruit file dataset")
 	if !*integration {
 		t.Skip("this is an integration test, to execute this test send integration flag to true")
 	}
+	t.Parallel()
 	ctx := context.TODO()
 	expectedDatasetStatus := repository.FruitDatasetStatus{
 		Ok: true,

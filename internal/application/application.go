@@ -54,14 +54,19 @@ func (i *Instance) Run() error {
 
 	repoFruit := i.createFruitRepository()
 	serviceFruit := fruits.NewService(repoFruit, i.logger)
+
 	monitorWorker := i.createMonitoringWorker(repoFruit)
 	defer monitorWorker.Shutdown()
+
 	ctx := context.Background()
+
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
+
 	go func() {
 		monitorWorker.Start(ctx)
 	}()
+
 	middlewareFruit := fruits.NewFruitMiddleware(serviceFruit, monitorWorker)
 	endyear := fruits.NewEndyear(middlewareFruit, i.logger)
 
@@ -101,6 +106,7 @@ func (i *Instance) listenToOSSignal(eventStream chan<- Event) {
 		osSignal := fmt.Sprintf("%d", <-c)
 		event := Event{
 			Message: osSignal,
+			Error:   nil,
 		}
 		eventStream <- event
 	}()
@@ -135,6 +141,7 @@ func (i *Instance) startWebServer(endyear fruits.Endyear, eventStream chan<- Eve
 		}
 		eventStream <- Event{
 			Message: "web server was ended",
+			Error:   nil,
 		}
 	}()
 }

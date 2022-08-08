@@ -10,6 +10,7 @@ import (
 )
 
 func TestToFruitPortOut(t *testing.T) {
+	t.Parallel()
 	expectedRepoFruit := repository.NewFruit{
 		Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
 		Variety:        "White Blend",
@@ -43,6 +44,7 @@ func TestToFruitPortOut(t *testing.T) {
 }
 
 func TestNewFruit(t *testing.T) {
+	t.Parallel()
 	expectedFruit := fruits.Fruit{
 		ID:             int64(1234),
 		Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",

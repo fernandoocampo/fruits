@@ -11,7 +11,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var errAnyError = errors.New("any error")
+
 func TestFindFruitSuccessfully(t *testing.T) {
+	t.Parallel()
 	fruitID := int64(1234)
 	expectedFruit := fruits.Fruit{
 		ID:             1234,
@@ -27,9 +30,8 @@ func TestFindFruitSuccessfully(t *testing.T) {
 		LocalName:      "Kerin Test",
 		WikiPage:       "@kerinokeefe",
 	}
-	fruitRepository := fruitRepoMock{
-		repo: make(map[int64]repository.Fruit),
-	}
+	fruitRepository := new(fruitRepoMock)
+	fruitRepository.repo = make(map[int64]repository.Fruit)
 	existingFruitID := int64(1234)
 	existingFruit := repository.Fruit{
 		ID:             repository.FruitID(existingFruitID),
@@ -47,7 +49,7 @@ func TestFindFruitSuccessfully(t *testing.T) {
 	}
 	fruitRepository.repo[existingFruitID] = existingFruit
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
-	fruitService := fruits.NewService(&fruitRepository, logger)
+	fruitService := fruits.NewService(fruitRepository, logger)
 	ctx := context.TODO()
 
 	fruitFound, err := fruitService.GetFruitWithID(ctx, fruitID)
@@ -57,6 +59,7 @@ func TestFindFruitSuccessfully(t *testing.T) {
 }
 
 func TestFindFruitNotFound(t *testing.T) {
+	t.Parallel()
 	fruitID := int64(1234)
 	fruitRepository := fruitRepoMock{
 		repo: make(map[int64]repository.Fruit),
@@ -72,10 +75,14 @@ func TestFindFruitNotFound(t *testing.T) {
 }
 
 func TestFindFruitWithError(t *testing.T) {
+	t.Parallel()
 	fruitID := int64(1234)
 	fruitRepository := fruitRepoMock{
-		repo: make(map[int64]repository.Fruit),
-		err:  errors.New("any error"),
+		lastID:        0,
+		searchResult:  *new(repository.FindFruitsResult),
+		repo:          make(map[int64]repository.Fruit),
+		err:           errAnyError,
+		dataSetStatus: *new(repository.FruitDatasetStatus),
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
 	fruitService := fruits.NewService(&fruitRepository, logger)
@@ -85,10 +92,11 @@ func TestFindFruitWithError(t *testing.T) {
 
 	assert.Error(t, err)
 	assert.Nil(t, fruitFound)
-	assert.Equal(t, errors.New("any error"), err)
+	assert.Equal(t, errAnyError, err)
 }
 
 func TestSearchFruitsSuccessfully(t *testing.T) {
+	t.Parallel()
 	givenFilter := fruits.SearchFruitFilter{
 		Start: 1,
 		Count: 10,
@@ -124,8 +132,11 @@ func TestSearchFruitsSuccessfully(t *testing.T) {
 		Count: 10,
 	}
 	fruitRepository := fruitRepoMock{
-		repo:         make(map[int64]repository.Fruit),
-		searchResult: searchResultFixture,
+		lastID:        0,
+		err:           nil,
+		repo:          make(map[int64]repository.Fruit),
+		searchResult:  searchResultFixture,
+		dataSetStatus: *new(repository.FruitDatasetStatus),
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
 	fruitService := fruits.NewService(&fruitRepository, logger)
@@ -138,8 +149,13 @@ func TestSearchFruitsSuccessfully(t *testing.T) {
 }
 
 func TestDatasetOk(t *testing.T) {
+	t.Parallel()
 	expectedStatus := fruits.DatasetStateOK
 	fruitRepository := fruitRepoMock{
+		lastID:       0,
+		err:          nil,
+		repo:         nil,
+		searchResult: *new(repository.FindFruitsResult),
 		dataSetStatus: repository.FruitDatasetStatus{
 			Ok: true,
 		},
@@ -156,9 +172,14 @@ func TestDatasetOk(t *testing.T) {
 }
 
 func TestDatasetWithError(t *testing.T) {
+	t.Parallel()
 	expectedStatus := fruits.DatasetStateError
 	expectedMessage := "dataset source was not found"
 	fruitRepository := fruitRepoMock{
+		lastID:       0,
+		err:          nil,
+		repo:         nil,
+		searchResult: *new(repository.FindFruitsResult),
 		dataSetStatus: repository.FruitDatasetStatus{
 			Ok:      false,
 			Message: "dataset source was not found",
@@ -187,11 +208,15 @@ func (u *fruitRepoMock) FindByID(_ context.Context, fruitID repository.FruitID) 
 	if u.err != nil {
 		return nil, u.err
 	}
-	result, ok := u.repo[repository.FruitIDValue(fruitID)]
+
+	var result *repository.Fruit
+
+	fruitFound, ok := u.repo[repository.FruitIDValue(fruitID)]
 	if !ok {
-		return nil, nil
+		return result, nil
 	}
-	return &result, nil
+
+	return &fruitFound, nil
 }
 
 func (u *fruitRepoMock) Save(ctx context.Context, fruit repository.NewFruit) (repository.FruitID, error) {
