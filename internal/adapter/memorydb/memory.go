@@ -130,9 +130,13 @@ func (u *Repository) FindAll(ctx context.Context, start, count int) ([]interface
 
 	u.locker.Lock()
 	{
+		if len(u.ids) == 0 || start > len(u.ids) {
+			start = 1
+			count = 0
+		}
 		newcount := start + count - 1
 		if len(u.ids) < count {
-			newcount = (len(u.ids))
+			newcount = len(u.ids)
 		}
 		ids := u.ids[start-1 : newcount]
 		for _, id := range ids {
@@ -144,6 +148,16 @@ func (u *Repository) FindAll(ctx context.Context, start, count int) ([]interface
 		}
 	}
 	u.locker.Unlock()
+
+	u.logger.Debug(
+		"found entities",
+		loggers.Fields{
+			"method": "memory.Repository.FindAll",
+			"start":  start,
+			"count":  count,
+			"result": result,
+		},
+	)
 
 	return result, nil
 }

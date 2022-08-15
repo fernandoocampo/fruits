@@ -14,6 +14,7 @@ import (
 
 func TestSaveFruit(t *testing.T) {
 	t.Parallel()
+
 	newFruitID := int64(1)
 	newFruit := repository.NewFruit{
 		Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
@@ -56,6 +57,7 @@ func TestSaveFruit(t *testing.T) {
 
 func TestLoadFruitDataset(t *testing.T) {
 	t.Parallel()
+
 	givenDataset := datasetFixture()
 	expectedDatasetStatus := repository.FruitDatasetStatus{
 		Ok: true,

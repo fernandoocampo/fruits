@@ -44,6 +44,7 @@ var errAnyError = errors.New("any error")
 
 func TestGetFruitSuccessfully(t *testing.T) {
 	t.Parallel()
+
 	fruitID := "1234"
 	expectedResponse := webResultGetFruit{
 		Success: true,
@@ -111,6 +112,8 @@ func TestGetFruitSuccessfully(t *testing.T) {
 }
 
 func TestSearchFruitsSuccessfully(t *testing.T) {
+	t.Parallel()
+
 	queryParams := "?page=1&pagesize=10"
 	expectedFilter := fruits.SearchFruitFilter{
 		Start: 1,
@@ -186,6 +189,7 @@ func TestSearchFruitsSuccessfully(t *testing.T) {
 
 func TestGetFruitNotFound(t *testing.T) {
 	t.Parallel()
+
 	fruitID := "1234"
 	expectedResponse := webResultGetFruit{
 		Success: true,
@@ -227,6 +231,7 @@ func TestGetFruitNotFound(t *testing.T) {
 
 func TestGetFruitWithError(t *testing.T) {
 	t.Parallel()
+
 	fruitID := "1234"
 	expectedResponse := webResultGetFruit{
 		Success: false,
@@ -269,6 +274,7 @@ func TestGetFruitWithError(t *testing.T) {
 
 func TestPostFruitSuccessfully(t *testing.T) {
 	t.Parallel()
+
 	newFruit := web.NewFruit{
 		Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
 		Variety:        "White Blend",
@@ -328,6 +334,7 @@ func TestPostFruitSuccessfully(t *testing.T) {
 
 func TestPostFruitWithError(t *testing.T) {
 	t.Parallel()
+
 	newFruit := web.NewFruit{
 		Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
 		Variety:        "White Blend",
@@ -387,6 +394,7 @@ func TestPostFruitWithError(t *testing.T) {
 
 func TestStatusSuccessfully(t *testing.T) {
 	t.Parallel()
+
 	expectedResponse := webResultGetStatus{
 		Status:    "ok",
 		Message:   "",

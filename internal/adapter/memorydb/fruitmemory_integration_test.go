@@ -12,6 +12,8 @@ import (
 )
 
 func TestLoadFruitDatasetFromFile(t *testing.T) {
+	t.Parallel()
+
 	integration := flag.Bool("integration", false, "run integration tests")
 	filePath := flag.String("filepath", "../../../data/fruitmag-data.csv", "fruit file dataset")
 	if !*integration {

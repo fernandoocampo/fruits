@@ -14,11 +14,10 @@ import (
 )
 
 const (
-	fieldSeparator = ","
-	fieldsNumber   = 14
-	bits32         = 32
-	bits64         = 64
-	base10         = 10
+	fieldsNumber = 14
+	bits32       = 32
+	bits64       = 64
+	base10       = 10
 )
 
 // fruit dataset columns index

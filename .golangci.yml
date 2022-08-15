@@ -8,6 +8,10 @@ linters:
     - exhaustive
     - exhaustivestruct
     - exhaustruct
+    - interfacer
+    - scopelint
+    - maligned
+    - golint
 linters-settings:
   tagliatelle:
     # Check the struck tag name case.

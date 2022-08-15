@@ -15,6 +15,7 @@ var errAnyError = errors.New("any error")
 
 func TestFindFruitSuccessfully(t *testing.T) {
 	t.Parallel()
+
 	fruitID := int64(1234)
 	expectedFruit := fruits.Fruit{
 		ID:             1234,
@@ -60,6 +61,7 @@ func TestFindFruitSuccessfully(t *testing.T) {
 
 func TestFindFruitNotFound(t *testing.T) {
 	t.Parallel()
+
 	fruitID := int64(1234)
 	fruitRepository := fruitRepoMock{
 		repo: make(map[int64]repository.Fruit),
@@ -76,6 +78,7 @@ func TestFindFruitNotFound(t *testing.T) {
 
 func TestFindFruitWithError(t *testing.T) {
 	t.Parallel()
+
 	fruitID := int64(1234)
 	fruitRepository := fruitRepoMock{
 		lastID:        0,
@@ -97,6 +100,7 @@ func TestFindFruitWithError(t *testing.T) {
 
 func TestSearchFruitsSuccessfully(t *testing.T) {
 	t.Parallel()
+
 	givenFilter := fruits.SearchFruitFilter{
 		Start: 1,
 		Count: 10,
@@ -150,6 +154,7 @@ func TestSearchFruitsSuccessfully(t *testing.T) {
 
 func TestDatasetOk(t *testing.T) {
 	t.Parallel()
+
 	expectedStatus := fruits.DatasetStateOK
 	fruitRepository := fruitRepoMock{
 		lastID:       0,
@@ -173,6 +178,7 @@ func TestDatasetOk(t *testing.T) {
 
 func TestDatasetWithError(t *testing.T) {
 	t.Parallel()
+
 	expectedStatus := fruits.DatasetStateError
 	expectedMessage := "dataset source was not found"
 	fruitRepository := fruitRepoMock{

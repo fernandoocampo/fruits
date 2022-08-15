@@ -29,6 +29,8 @@ docker-build:
 	DOCKER_BUILDKIT=0 docker build --no-cache -t $(DOCKER_REPO)/$(DOCKER_CONTAINER) .
 docker-push:
 	docker push $(DOCKER_REPO)/$(DOCKER_CONTAINER)
+lint-docker:
+	docker run --rm -v $(PWD):/app -w /app golangci/golangci-lint:v1.47-alpine golangci-lint run
 run-local:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(BINARY_UNIX) -v ./$(SRC_FOLDER)
 	docker-compose up --build -d

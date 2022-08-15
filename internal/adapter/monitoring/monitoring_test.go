@@ -13,6 +13,7 @@ import (
 
 func TestStringReport(t *testing.T) {
 	t.Parallel()
+
 	expectedReport := "requests=2\nsuccess=1\nerror=1\navailability=50\nnum_fruits=1"
 	fruitRepository := fruitRepoMock{
 		size: 1,
@@ -45,6 +46,7 @@ func TestStringReport(t *testing.T) {
 
 func TestStringReportMultipleEvents(t *testing.T) {
 	t.Parallel()
+
 	expectedReport := "requests=4\nsuccess=2\nerror=2\navailability=50\nnum_fruits=2"
 	fruitRepository := fruitRepoMock{
 		size: 2,

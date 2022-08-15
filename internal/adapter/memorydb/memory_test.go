@@ -12,6 +12,7 @@ import (
 
 func TestCreateFruitInMemoryDB(t *testing.T) {
 	t.Parallel()
+
 	newFruitID := int64(1)
 	newFruit := repository.Fruit{
 		ID:             repository.FruitID(newFruitID),
@@ -56,6 +57,7 @@ func TestCreateFruitInMemoryDB(t *testing.T) {
 
 func TestCreateFruitWithRepository(t *testing.T) {
 	t.Parallel()
+
 	fruitID := int64(1234)
 	newFruit := repository.NewFruit{
 		Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
@@ -84,6 +86,7 @@ func TestCreateFruitWithRepository(t *testing.T) {
 
 func TestCreateFruitInMemoryDBWithLimit(t *testing.T) {
 	t.Parallel()
+
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
 	newDB := memorydb.NewRepository(logger)
 	ctx := context.TODO()
@@ -108,4 +111,19 @@ func TestCreateFruitInMemoryDBWithLimit(t *testing.T) {
 		}
 	}
 	assert.Equal(t, 100, newDB.Count())
+}
+
+func TestFindAllButEmpty(t *testing.T) {
+	t.Parallel()
+
+	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
+	newDB := memorydb.NewRepository(logger)
+	ctx := context.TODO()
+
+	result, err := newDB.FindAll(ctx, 10, 10)
+	if err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
+
+	assert.Empty(t, result)
 }
