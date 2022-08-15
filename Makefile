@@ -38,3 +38,7 @@ run-docker-local:
 	docker run --rm -it -p 8080:8080 vivekteam/fruits
 clean-local:
 	docker-compose down
+helm-lint:
+	helm lint k8s-v2/fruits
+helm-install:
+	helm install --name fruits ./k8s-v2/fruits
