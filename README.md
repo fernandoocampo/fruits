@@ -96,42 +96,4 @@ helm install --name fruits ./k8s-v2/fruits
 
 ## using flux
 
-0. Check kubernetes cluster first
-
-```sh
-flux check --pre
-```
-
-0. Create a token for this on your github account `settings / Developer settings`
-
-Check these
-```text
- repo               Full control of private repositories
- repo:status        Access commit status
- repo_deployment    Access deployment status
- public_repo        Access public repositories
- repo:invite        Access repository invitations
- security_events    Read and write security events
-```
-
-
-1. Install flux onto your cluster
-
-```sh
-flux bootstrap github \
-  --owner=$GITHUB_USER \
-  --repository=fruits \
-  --branch=master \
-  --path=./clusters/kind \
-  --personal
-```
-
-1. create source repo
-```sh
-flux create source git fruits \
-    --namespace=default \
-    --url=https://github.com/fernandoocampo/fruits \
-    --branch=master \
-    --interval=60s \
-    --export > ./clusters/kind/fruits-source.yaml
-```
+check project [flux-practices](https://github.com/fernandoocampo/flux-practices)
