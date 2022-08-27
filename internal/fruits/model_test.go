@@ -1,7 +1,6 @@
 package fruits_test
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/fernandoocampo/fruits/internal/adapter/repository"
@@ -13,7 +12,7 @@ func TestToFruitPortOut(t *testing.T) {
 	t.Parallel()
 
 	expectedRepoFruit := repository.NewFruit{
-		Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
+		Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
 		Variety:        "White Blend",
 		Vault:          "Nicosia",
 		Year:           87,
@@ -21,12 +20,12 @@ func TestToFruitPortOut(t *testing.T) {
 		Province:       "Sicily & Sardinia",
 		Region:         "Etna",
 		Description:    "brisk acidity",
-		Classification: "Vulk√† Bianco",
-		LocalName:      "Kerin OÄôKeefe",
+		Classification: "Vulka Bianco",
+		LocalName:      "Kerin OaKeefe",
 		WikiPage:       "@kerinokeefe",
 	}
 	givenFruit := fruits.NewFruit{
-		Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
+		Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
 		Variety:        "White Blend",
 		Vault:          "Nicosia",
 		Year:           87,
@@ -34,8 +33,8 @@ func TestToFruitPortOut(t *testing.T) {
 		Province:       "Sicily & Sardinia",
 		Region:         "Etna",
 		Description:    "brisk acidity",
-		Classification: "Vulk√† Bianco",
-		LocalName:      "Kerin OÄôKeefe",
+		Classification: "Vulka Bianco",
+		LocalName:      "Kerin OaKeefe",
 		WikiPage:       "@kerinokeefe",
 	}
 
@@ -49,7 +48,7 @@ func TestNewFruit(t *testing.T) {
 
 	expectedFruit := fruits.Fruit{
 		ID:             int64(1234),
-		Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
+		Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
 		Variety:        "White Blend",
 		Vault:          "Nicosia",
 		Year:           87,
@@ -57,13 +56,13 @@ func TestNewFruit(t *testing.T) {
 		Province:       "Sicily & Sardinia",
 		Region:         "Etna",
 		Description:    "brisk acidity",
-		Classification: "Vulk√† Bianco",
-		LocalName:      "Kerin OÄôKeefe",
+		Classification: "Vulka Bianco",
+		LocalName:      "Kerin OaKeefe",
 		WikiPage:       "@kerinokeefe",
 	}
 	givenFruitID := int64(1234)
 	givenNewFruit := fruits.NewFruit{
-		Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
+		Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
 		Variety:        "White Blend",
 		Vault:          "Nicosia",
 		Year:           87,
@@ -71,8 +70,8 @@ func TestNewFruit(t *testing.T) {
 		Province:       "Sicily & Sardinia",
 		Region:         "Etna",
 		Description:    "brisk acidity",
-		Classification: "Vulk√† Bianco",
-		LocalName:      "Kerin OÄôKeefe",
+		Classification: "Vulka Bianco",
+		LocalName:      "Kerin OaKeefe",
 		WikiPage:       "@kerinokeefe",
 	}
 
@@ -90,7 +89,7 @@ func TestNewValidation(t *testing.T) {
 	}{
 		"valid": {
 			data: fruits.NewFruit{
-				Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
+				Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
 				Variety:        "White Blend",
 				Vault:          "Nicosia",
 				Year:           87,
@@ -98,17 +97,17 @@ func TestNewValidation(t *testing.T) {
 				Province:       "Sicily & Sardinia",
 				Region:         "Etna",
 				Description:    "brisk acidity",
-				Classification: "Vulk√† Bianco",
-				LocalName:      "Kerin OÄôKeefe",
+				Classification: "Vulka Bianco",
+				LocalName:      "Kerin OaKeefe",
 				WikiPage:       "@kerinokeefe",
 			},
 		},
 		"valid_without_more_fields": {
 			data: fruits.NewFruit{
-				Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
+				Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
 				Vault:          "Nicosia",
 				Country:        "Italy",
-				Classification: "Vulk√† Bianco",
+				Classification: "Vulka Bianco",
 			},
 		},
 		"invalid_name": {
@@ -120,15 +119,17 @@ func TestNewValidation(t *testing.T) {
 				Province:       "Sicily & Sardinia",
 				Region:         "Etna",
 				Description:    "brisk acidity",
-				Classification: "Vulk√† Bianco",
-				LocalName:      "Kerin OÄôKeefe",
+				Classification: "Vulka Bianco",
+				LocalName:      "Kerin OaKeefe",
 				WikiPage:       "@kerinokeefe",
 			},
-			want: errors.New("these fields are mandatory: name."),
+			want: fruits.MandatoryError{
+				Fields: []string{"name"},
+			},
 		},
 		"invalid_classification": {
 			data: fruits.NewFruit{
-				Name:        "Nicosia 2013 Vulk√† Bianco  (Etna)",
+				Name:        "Nicosia 2013 Vulka Bianco  (Etna)",
 				Variety:     "White Blend",
 				Vault:       "Nicosia",
 				Year:        87,
@@ -136,40 +137,46 @@ func TestNewValidation(t *testing.T) {
 				Province:    "Sicily & Sardinia",
 				Region:      "Etna",
 				Description: "brisk acidity",
-				LocalName:   "Kerin OÄôKeefe",
+				LocalName:   "Kerin OaKeefe",
 				WikiPage:    "@kerinokeefe",
 			},
-			want: errors.New("these fields are mandatory: classification."),
+			want: fruits.MandatoryError{
+				Fields: []string{"classification"},
+			},
 		},
 		"invalid_country": {
 			data: fruits.NewFruit{
-				Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
+				Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
 				Variety:        "White Blend",
 				Vault:          "Nicosia",
 				Year:           87,
 				Province:       "Sicily & Sardinia",
 				Region:         "Etna",
 				Description:    "brisk acidity",
-				Classification: "Vulk√† Bianco",
-				LocalName:      "Kerin OÄôKeefe",
+				Classification: "Vulka Bianco",
+				LocalName:      "Kerin OaKeefe",
 				WikiPage:       "@kerinokeefe",
 			},
-			want: errors.New("these fields are mandatory: country."),
+			want: fruits.MandatoryError{
+				Fields: []string{"country"},
+			},
 		},
 		"invalid_vault": {
 			data: fruits.NewFruit{
-				Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
+				Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
 				Variety:        "White Blend",
 				Year:           87,
 				Country:        "Italy",
 				Province:       "Sicily & Sardinia",
 				Region:         "Etna",
 				Description:    "brisk acidity",
-				Classification: "Vulk√† Bianco",
-				LocalName:      "Kerin OÄôKeefe",
+				Classification: "Vulka Bianco",
+				LocalName:      "Kerin OaKeefe",
 				WikiPage:       "@kerinokeefe",
 			},
-			want: errors.New("these fields are mandatory: vault."),
+			want: fruits.MandatoryError{
+				Fields: []string{"vault"},
+			},
 		},
 		"all_invalid": {
 			data: fruits.NewFruit{
@@ -178,15 +185,21 @@ func TestNewValidation(t *testing.T) {
 				Province:    "Sicily & Sardinia",
 				Region:      "Etna",
 				Description: "brisk acidity",
-				LocalName:   "Kerin OÄôKeefe",
+				LocalName:   "Kerin OaKeefe",
 				WikiPage:    "@kerinokeefe",
 			},
-			want: errors.New("these fields are mandatory: name, classification, country, vault."),
+			want: fruits.MandatoryError{
+				Fields: []string{"vault"},
+			},
 		},
 	}
 
-	for k, v := range cases {
-		got := v.data.Validate()
-		assert.Equal(t, v.want, got, k)
+	for name, test := range cases {
+		t.Run(name, func(st *testing.T) {
+			st.Parallel()
+
+			got := test.data.Validate()
+			assert.Equal(st, test.want, got)
+		})
 	}
 }

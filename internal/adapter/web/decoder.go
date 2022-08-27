@@ -17,18 +17,26 @@ import (
 const (
 	startRecordPosition = 1
 	rowPerPage          = 10
+	base10              = 10
+	bitSize64           = 64
 )
 
-var errNoFruitIDWasProvided = errors.New("fruit ID was not provided")
+var (
+	errFruitIDNoInt         = errors.New("fruit ID must be a valid integer")
+	errDecodingRequest      = errors.New("something went wrong decoding request")
+	errNoFruitIDWasProvided = errors.New("fruit ID was not provided")
+)
 
 func makeDecodeGetFruitWithIDRequest(logger *loggers.Logger) httptransport.DecodeRequestFunc {
 	return func(ctx context.Context, req *http.Request) (interface{}, error) {
 		v := mux.Vars(req)
+
 		fruitIDParam, ok := v["id"]
 		if !ok {
 			return nil, errNoFruitIDWasProvided
 		}
-		fruitID, err := strconv.ParseInt(fruitIDParam, 10, 64)
+
+		fruitID, err := strconv.ParseInt(fruitIDParam, base10, bitSize64)
 		if err != nil {
 			logger.Error(
 				"invalid fruit id",
@@ -38,8 +46,10 @@ func makeDecodeGetFruitWithIDRequest(logger *loggers.Logger) httptransport.Decod
 					"error":    err,
 				},
 			)
-			return nil, errors.New("fruit ID must be a valid integer")
+
+			return nil, errFruitIDNoInt
 		}
+
 		return fruitID, nil
 	}
 }
@@ -63,10 +73,13 @@ func makeDecodeSearchFruitsRequest(logger *loggers.Logger) httptransport.DecodeR
 						"error":  err,
 					},
 				)
+
 				start = 1
 			}
+
 			filterRequest.Start = start
 		}
+
 		if v, ok := filters["count"]; ok {
 			count, err := strconv.Atoi(v[0])
 			if err != nil {
@@ -77,8 +90,10 @@ func makeDecodeSearchFruitsRequest(logger *loggers.Logger) httptransport.DecodeR
 						"error":  err,
 					},
 				)
+
 				count = 10
 			}
+
 			filterRequest.Count = count
 		}
 
@@ -116,7 +131,8 @@ func makeDecodeCreateFruitRequest(logger *loggers.Logger) httptransport.DecodeRe
 					"error":   err,
 				},
 			)
-			return nil, err
+
+			return nil, errDecodingRequest
 		}
 
 		logger.Debug(

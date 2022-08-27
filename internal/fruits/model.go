@@ -3,8 +3,8 @@ package fruits
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/fernandoocampo/fruits/internal/adapter/repository"
@@ -18,10 +18,15 @@ type FruitService interface {
 	DatasetStatus(ctx context.Context) DatasetStatus
 }
 
+// MandatoryError define an error for mandatory fields.
+type MandatoryError struct {
+	Fields []string
+}
+
 // DatasetState define fruit dataset state.
 type DatasetState string
 
-// CreateFruitResult standard response for create Fruit
+// CreateFruitResult standard response for create Fruit.
 type CreateFruitResult struct {
 	ID  int64
 	Err string
@@ -39,7 +44,7 @@ type SearchFruitsDataResult struct {
 	Err          string
 }
 
-// SearchFruitFilter contains filters to search fruits
+// SearchFruitFilter contains filters to search fruits.
 type SearchFruitFilter struct {
 	// Page page to query
 	Start int
@@ -97,7 +102,7 @@ type FruitItem struct {
 	Name string `json:"name"`
 }
 
-// DatasetStatus contains data about the fruit dataset result
+// DatasetStatus contains data about the fruit dataset result.
 type DatasetStatus struct {
 	Status    DatasetState
 	Message   string
@@ -108,6 +113,13 @@ const (
 	DatasetStateOK    DatasetState = "ok"
 	DatasetStateError DatasetState = "error"
 )
+
+func (m MandatoryError) Error() string {
+	return fmt.Sprintf(
+		"these fields are mandatory: %s.",
+		strings.Join(m.Fields, ", "),
+	)
+}
 
 // ToFruitPortOut transforms new fruit to a fruit port out.
 func (n NewFruit) ToFruitPortOut() repository.NewFruit {
@@ -130,24 +142,31 @@ func (n NewFruit) ToFruitPortOut() repository.NewFruit {
 
 // Validate check is the given data to create a fruit is correct.
 func (n NewFruit) Validate() error {
-	var errorMessage string
+	var invalidList []string
+
 	if n.Name == "" {
-		errorMessage = "name, "
+		invalidList = append(invalidList, "name")
 	}
+
 	if n.Classification == "" {
-		errorMessage += "classification, "
+		invalidList = append(invalidList, "classification")
 	}
+
 	if n.Country == "" {
-		errorMessage += "country, "
+		invalidList = append(invalidList, "country")
 	}
+
 	if n.Vault == "" {
-		errorMessage += "vault, "
+		invalidList = append(invalidList, "vault")
 	}
-	if errorMessage == "" {
+
+	if len(invalidList) == 0 {
 		return nil
 	}
-	result := fmt.Sprintf("these fields are mandatory: %s.", errorMessage[:len(errorMessage)-2])
-	return errors.New(result)
+
+	return MandatoryError{
+		Fields: invalidList,
+	}
 }
 
 // NewFruit transforms new fruit to a fruit port out.
@@ -175,6 +194,7 @@ func transformFruitPortOuttoFruit(fruitRepo *repository.Fruit) *Fruit {
 	if fruitRepo == nil {
 		return nil
 	}
+
 	newfruit := Fruit{
 		ID:             repository.FruitIDValue(fruitRepo.ID),
 		Name:           fruitRepo.Name,
@@ -191,6 +211,7 @@ func transformFruitPortOuttoFruit(fruitRepo *repository.Fruit) *Fruit {
 		LocalName:      fruitRepo.LocalName,
 		WikiPage:       fruitRepo.WikiPage,
 	}
+
 	return &newfruit
 }
 
@@ -199,46 +220,55 @@ func transformFruitPortOuttoFruitItem(fruitRepo *repository.Fruit) *FruitItem {
 	if fruitRepo == nil {
 		return nil
 	}
+
 	newfruit := FruitItem{
 		ID:   repository.FruitIDValue(fruitRepo.ID),
 		Name: fruitRepo.Name,
 	}
+
 	return &newfruit
 }
 
-// newGetFruitWithIDResult create a new GetFruitWithIDResult
+// newGetFruitWithIDResult create a new GetFruitWithIDResult.
 func newGetFruitWithIDResult(fruit *Fruit, err error) GetFruitWithIDResult {
 	var errmessage string
+
 	if err != nil {
 		errmessage = err.Error()
 	}
+
 	if fruit == nil && err == nil {
 		errmessage = "record not found"
 	}
+
 	return GetFruitWithIDResult{
 		Fruit: fruit,
 		Err:   errmessage,
 	}
 }
 
-// newSearchFruitsResult create a new SearchFruitsResult
+// newSearchFruitsResult create a new SearchFruitsResult.
 func newSearchFruitsDataResult(result *SearchFruitsResult, err error) SearchFruitsDataResult {
 	var errmessage string
+
 	if err != nil {
 		errmessage = err.Error()
 	}
+
 	return SearchFruitsDataResult{
 		SearchResult: result,
 		Err:          errmessage,
 	}
 }
 
-// newCreateFruitResult create a new CreateFruitResponse
+// newCreateFruitResult create a new CreateFruitResponse.
 func newCreateFruitResult(fruitID int64, err error) CreateFruitResult {
 	var errmessage string
+
 	if err != nil {
 		errmessage = err.Error()
 	}
+
 	return CreateFruitResult{
 		ID:  fruitID,
 		Err: errmessage,
@@ -250,6 +280,7 @@ func (u Fruit) String() string {
 	if err != nil {
 		return ""
 	}
+
 	return string(b)
 }
 
@@ -258,6 +289,7 @@ func (n NewFruit) String() string {
 	if err != nil {
 		return ""
 	}
+
 	return string(b)
 }
 
@@ -269,12 +301,14 @@ func (s SearchFruitFilter) toRepositoryFilters() repository.FruitFilter {
 }
 
 func toSearchFruitsResult(repoResult repository.FindFruitsResult) SearchFruitsResult {
-	var fruitCollection []FruitItem
-	for _, v := range repoResult.Fruits {
-		fruitFound := &v
+	fruitCollection := make([]FruitItem, len(repoResult.Fruits))
+
+	for index := range repoResult.Fruits {
+		fruitFound := &repoResult.Fruits[index]
 		fruitToAdd := transformFruitPortOuttoFruitItem(fruitFound)
-		fruitCollection = append(fruitCollection, *fruitToAdd)
+		fruitCollection[index] = *fruitToAdd
 	}
+
 	return SearchFruitsResult{
 		Fruits: fruitCollection,
 		Total:  repoResult.Total,
@@ -285,9 +319,11 @@ func toSearchFruitsResult(repoResult repository.FindFruitsResult) SearchFruitsRe
 
 func toDatasetStatus(datasetStatus repository.FruitDatasetStatus) DatasetStatus {
 	status := DatasetStateOK
+
 	if !datasetStatus.Ok {
 		status = DatasetStateError
 	}
+
 	return DatasetStatus{
 		Message:   datasetStatus.Message,
 		Status:    status,

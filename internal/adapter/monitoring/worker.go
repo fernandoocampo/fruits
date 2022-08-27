@@ -3,6 +3,7 @@ package monitoring
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/fernandoocampo/fruits/internal/adapter/loggers"
@@ -31,7 +32,7 @@ type MetricsRepository interface {
 	Push(report string) error
 }
 
-// MonitorData monitor data to initialize the monitor worker
+// MonitorData monitor data to initialize the monitor worker.
 type MonitorData struct {
 	ReportFrequency   time.Duration
 	FruitRepository   FruitRepository
@@ -57,6 +58,7 @@ func New(params MonitorData) *Monitor {
 		metricsRepository: params.MetricsRepository,
 		logger:            params.Logger,
 	}
+
 	return &newMonitor
 }
 
@@ -68,11 +70,13 @@ func (m *Monitor) Start(ctx context.Context) {
 			if ctx.Err() != nil {
 				m.logger.Info("receiving signal to finish context", loggers.Fields{"reason": ctx.Err().Error()})
 			}
+
 			return
 		case metricName, ok := <-m.eventStream:
 			if !ok {
 				return
 			}
+
 			m.report[metricName]++
 		case <-m.ticker.C:
 			m.Flush()
@@ -80,23 +84,27 @@ func (m *Monitor) Start(ctx context.Context) {
 	}
 }
 
-// CountRequest count a request
+// CountRequest count a request.
 func (m *Monitor) CountRequest() {
 	m.count(requests)
 }
 
-// CountSuccess count a successful request
+// CountSuccess count a successful request.
 func (m *Monitor) CountSuccess() {
 	m.count(successfulRequest)
 }
 
-// CountError count an unsuccessful request
+// CountError count an unsuccessful request.
 func (m *Monitor) CountError() {
 	m.count(failedRequest)
 }
 
 func (m *Monitor) Flush() {
-	m.metricsRepository.Push(m.generateReport())
+	err := m.metricsRepository.Push(m.generateReport())
+	if err != nil {
+		log.Println("unexpected error", err)
+	}
+
 	m.report = newReport()
 }
 
@@ -110,7 +118,9 @@ func (m *Monitor) generateReport() string {
 	if m.report[requests] > 0 {
 		m.report[availability] = int(oneHundred * (float32(m.report[successfulRequest]) / float32(m.report[requests])))
 	}
+
 	m.report[fruits] = m.fruitRepository.Count()
+
 	return fmt.Sprintf(
 		reportFormat,
 		m.report[requests],
@@ -121,7 +131,7 @@ func (m *Monitor) generateReport() string {
 	)
 }
 
-// Shutdown turn off the monitor
+// Shutdown turn off the monitor.
 func (m *Monitor) Shutdown() {
 	m.ticker.Stop()
 	close(m.eventStream)

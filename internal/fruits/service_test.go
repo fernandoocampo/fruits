@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var errAnyError = errors.New("any error")
+var errAnyError = errors.New("something went wrong accessing db")
 
 func TestFindFruitSuccessfully(t *testing.T) {
 	t.Parallel()

@@ -2,7 +2,7 @@ package web
 
 import "github.com/fernandoocampo/fruits/internal/fruits"
 
-// Result standard result for the service
+// Result standard result for the service.
 type Result struct {
 	Success bool        `json:"success"`
 	Data    interface{} `json:"data"`
@@ -51,7 +51,7 @@ type NewFruit struct {
 	WikiPage       string  `json:"wiki_page"`
 }
 
-// CreateFruitResponse standard response for create Fruit
+// CreateFruitResponse standard response for create Fruit.
 type CreateFruitResponse struct {
 	ID  string `json:"id"`
 	Err string `json:"err,omitempty"`
@@ -69,7 +69,7 @@ type SearchFruitsResponse struct {
 	Err    string              `json:"err,omitempty"`
 }
 
-// SearchFruitFilter contains filters to search fruits
+// SearchFruitFilter contains filters to search fruits.
 type SearchFruitFilter struct {
 	// Start record position to query
 	Start int
@@ -97,6 +97,7 @@ func toFruit(fruit *fruits.Fruit) *Fruit {
 	if fruit == nil {
 		return nil
 	}
+
 	webFruit := Fruit{
 		ID:             fruit.ID,
 		Name:           fruit.Name,
@@ -113,6 +114,7 @@ func toFruit(fruit *fruits.Fruit) *Fruit {
 		LocalName:      fruit.LocalName,
 		WikiPage:       fruit.WikiPage,
 	}
+
 	return &webFruit
 }
 
@@ -121,10 +123,12 @@ func toFruitItemResult(fruit *fruits.FruitItem) *FruitItemResult {
 	if fruit == nil {
 		return nil
 	}
+
 	webFruit := FruitItemResult{
 		ID:   fruit.ID,
 		Name: fruit.Name,
 	}
+
 	return &webFruit
 }
 
@@ -136,16 +140,18 @@ func toSearchFruitResult(result *fruits.SearchFruitsResult) *SearchFruitsResult 
 
 	fruitsFound := make([]FruitItemResult, 0)
 
-	for _, v := range result.Fruits {
-		fruitFound := toFruitItemResult(&v)
+	for i := range result.Fruits {
+		fruitFound := toFruitItemResult(&result.Fruits[i])
 		fruitsFound = append(fruitsFound, *fruitFound)
 	}
+
 	webFruit := SearchFruitsResult{
 		Fruits: fruitsFound,
 		Total:  result.Total,
 		Start:  result.Start,
 		Count:  result.Count,
 	}
+
 	return &webFruit
 }
 
@@ -154,6 +160,7 @@ func (n *NewFruit) toFruit() *fruits.NewFruit {
 	if n == nil {
 		return nil
 	}
+
 	fruitDomain := fruits.NewFruit{
 		Name:           n.Name,
 		Variety:        n.Variety,
@@ -169,31 +176,39 @@ func (n *NewFruit) toFruit() *fruits.NewFruit {
 		LocalName:      n.LocalName,
 		WikiPage:       n.WikiPage,
 	}
+
 	return &fruitDomain
 }
 
 func toCreateFruitResponse(fruitResult fruits.CreateFruitResult) Result {
 	var message Result
+
 	if fruitResult.Err == "" {
 		message.Success = true
 		message.Data = fruitResult.ID
 	}
+
 	if fruitResult.Err != "" {
 		message.Errors = []string{fruitResult.Err}
 	}
+
 	return message
 }
 
 func toGetFruitWithIDResponse(fruitResult fruits.GetFruitWithIDResult) Result {
 	var message Result
+
 	newFruit := toFruit(fruitResult.Fruit)
+
 	if fruitResult.Err == "" {
 		message.Success = true
 		message.Data = newFruit
 	}
+
 	if fruitResult.Err != "" {
 		message.Errors = []string{fruitResult.Err}
 	}
+
 	return message
 }
 
@@ -204,9 +219,11 @@ func toSearchFruitsResponse(fruitResult fruits.SearchFruitsDataResult) Result {
 		message.Success = true
 		message.Data = toSearchFruitResult(fruitResult.SearchResult)
 	}
+
 	if fruitResult.Err != "" {
 		message.Errors = []string{fruitResult.Err}
 	}
+
 	return message
 }
 
@@ -216,6 +233,7 @@ func toFruitDatasetStatusResponse(status fruits.DatasetStatus) FruitDatasetStatu
 		Message:   status.Message,
 		Timestamp: status.Timestamp,
 	}
+
 	return response
 }
 

@@ -27,21 +27,24 @@ type Event struct {
 	Error   error
 }
 
-// Instance application instance
+// Instance application instance.
 type Instance struct {
 	configuration configurations.Application
 	logger        *loggers.Logger
 }
 
-// NewInstance creates a new application instance
+var errLoadingApplication = errors.New("application setup could not be loaded")
+
+// NewInstance creates a new application instance.
 func NewInstance() *Instance {
 	newInstance := Instance{
 		logger: loggers.NewLoggerWithStdout(applicationName, loggers.Debug),
 	}
+
 	return &newInstance
 }
 
-// Run runs fruits application
+// Run runs fruits application.
 func (i *Instance) Run() error {
 	i.logger.Info("starting application", loggers.Fields{"pkg": "application"})
 
@@ -49,6 +52,7 @@ func (i *Instance) Run() error {
 	if confError != nil {
 		return confError
 	}
+
 	i.logger.SetLoggerLevel(loggers.Level(i.configuration.LogLevel))
 	i.logger.Debug("application configuration", loggers.Fields{"parameters": i.configuration})
 
@@ -75,6 +79,7 @@ func (i *Instance) Run() error {
 	i.startWebServer(endyear, eventStream)
 
 	eventMessage := <-eventStream
+
 	i.logger.Info(
 		"ending server",
 		loggers.Fields{
@@ -89,12 +94,14 @@ func (i *Instance) Run() error {
 				"error": eventMessage.Error,
 			},
 		)
+
 		return eventMessage.Error
 	}
+
 	return nil
 }
 
-// Stop stop application, take advantage of this to clean resources
+// Stop stop application, take advantage of this to clean resources.
 func (i *Instance) Stop() {
 	i.logger.Info("stopping the application", loggers.Fields{"pkg": "application"})
 }
@@ -131,14 +138,17 @@ func (i *Instance) startWebServer(endyear fruits.Endyear, eventStream chan<- Eve
 	go func() {
 		i.logger.Info("starting http server", loggers.Fields{"http": i.configuration.ApplicationPort})
 		handler := web.NewHTTPServer(endyear, i.logger)
+
 		err := http.ListenAndServe(i.configuration.ApplicationPort, handler)
 		if err != nil {
 			eventStream <- Event{
 				Message: "web server was ended with error",
 				Error:   err,
 			}
+
 			return
 		}
+
 		eventStream <- Event{
 			Message: "web server was ended",
 			Error:   nil,
@@ -155,18 +165,24 @@ func (i *Instance) loadConfiguration() error {
 				"error": err,
 			},
 		)
-		return errors.New("application setup could not be loaded")
+
+		return errLoadingApplication
 	}
+
 	i.configuration = applicationSetUp
+
 	return nil
 }
 
 func (i *Instance) createFruitRepository() *memorydb.FruitMemoryRepository {
 	i.logger.Info("initializing database", loggers.Fields{})
 	newRepository := memorydb.NewFruitRepository(i.logger)
+
 	if i.configuration.LoadDataset {
 		i.logger.Info("loading fruit dataset", loggers.Fields{})
+
 		ctx := context.Background()
+
 		err := newRepository.LoadDatasetWithFile(ctx, i.configuration.FilePath)
 		if err != nil {
 			i.logger.Error(
@@ -177,5 +193,6 @@ func (i *Instance) createFruitRepository() *memorydb.FruitMemoryRepository {
 			)
 		}
 	}
+
 	return newRepository
 }

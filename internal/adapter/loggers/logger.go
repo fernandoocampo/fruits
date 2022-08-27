@@ -8,20 +8,20 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Level log level type
+// Level log level type.
 type Level int
 
 // Fields define fields type to add in logs.
 type Fields map[string]interface{}
 
 const (
-	// Debug log level
+	// Debug log level.
 	Debug Level = 1 + iota
-	// Info log level
+	// Info log level.
 	Info
-	// Warn log level
+	// Warn log level.
 	Warn
-	// Error log level
+	// Error log level.
 	Error
 )
 
@@ -49,15 +49,17 @@ func NewLogger(artifactName string, level Level, output io.Writer) *Logger {
 	logger.SetOutput(output)
 	logger.SetLevel(getLoggerLevel(level))
 	logger.SetFormatter(&logrus.JSONFormatter{})
+
 	newLogrus := Logger{
 		level:    level,
 		logger:   logger,
 		artifact: artifactName,
 	}
+
 	return &newLogrus
 }
 
-// NewBasicLogger create basic logger
+// NewBasicLogger create basic logger.
 func NewBasicLogger(output io.Writer) *log.Logger {
 	newLogger := log.New(output, "", 0)
 
@@ -96,18 +98,20 @@ func (l *Logger) Error(msg string, fields Fields) {
 	}
 }
 
-// SetLoggerLevel set the level of log
+// SetLoggerLevel set the level of log.
 func (l *Logger) SetLoggerLevel(newLevel Level) {
 	if newLevel < 0 {
 		l.level = Debug
 
 		return
 	}
+
 	if newLevel > Error {
 		l.level = Error
 
 		return
 	}
+
 	l.level = newLevel
 }
 

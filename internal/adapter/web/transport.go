@@ -36,5 +36,6 @@ func NewHTTPServer(endyear fruits.Endyear, logger *loggers.Logger) http.Handler 
 			makeEmptyDecoder(logger),
 			makeEncodeGetStatusResponse(logger)),
 	)
+
 	return router
 }

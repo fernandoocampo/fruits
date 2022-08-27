@@ -20,7 +20,7 @@ const (
 	base10       = 10
 )
 
-// fruit dataset columns index
+// fruit dataset columns index.
 const (
 	idColumn = iota
 	countryColumn
@@ -39,15 +39,28 @@ const (
 )
 
 var (
-	errIDMustBeAnInteger    = fmt.Errorf("id must be an integer")
-	errYearMustBeAnInteger  = fmt.Errorf("year must be an integer")
-	errPriceMustBeAnInteger = errors.New("price must be an integer")
+	errOpenFile               = errors.New("could not open file")
+	errNotUpdatedFruit        = errors.New("given fruit could not be updated")
+	errIDMustBeAnInteger      = fmt.Errorf("id must be an integer")
+	errYearMustBeAnInteger    = fmt.Errorf("year must be an integer")
+	errProcessFileRecords     = errors.New("could not process file records")
+	errPriceMustBeAnInteger   = errors.New("price must be an integer")
+	errDatasetInvalidRecords  = errors.New("dataset has invalid records")
+	errRecordCouldNotBeStored = errors.New("given fruit could not be stored")
+	errSomethingWrongFindByID = errors.New("something went wrong trying to get the given fruit id")
 )
 
-// ColumnsError defines colum error
+// ColumnsError defines colum error.
 type ColumnsError struct {
 	FruitValues int
 	Record      string
+}
+
+// InvalidRecordError error to indicate that
+// a record is invalid.
+type InvalidRecordError struct {
+	Message string
+	Line    int
 }
 
 // FruitMemoryRepository is the repository handler for fruits in a memory db.
@@ -57,7 +70,7 @@ type FruitMemoryRepository struct {
 	logger        *loggers.Logger
 }
 
-// NewFruitRepository creates a new fruit repository in a dry run repository
+// NewFruitRepository creates a new fruit repository in a dry run repository.
 func NewFruitRepository(logger *loggers.Logger) *FruitMemoryRepository {
 	newRepo := FruitMemoryRepository{
 		storage: NewRepository(logger),
@@ -66,6 +79,7 @@ func NewFruitRepository(logger *loggers.Logger) *FruitMemoryRepository {
 		},
 		logger: logger,
 	}
+
 	return &newRepo
 }
 
@@ -80,6 +94,10 @@ func (c *ColumnsError) Error() string {
 	return fmt.Sprintf("invalid fields number, expected: %d, but got %d, record %q", fieldsNumber, c.FruitValues, c.Record)
 }
 
+func (i InvalidRecordError) Error() string {
+	return i.Message
+}
+
 // Save save the given fruit in the postgresql database.
 func (u *FruitMemoryRepository) Save(ctx context.Context, newfruit repository.NewFruit) (repository.FruitID, error) {
 	u.logger.Debug(
@@ -89,8 +107,10 @@ func (u *FruitMemoryRepository) Save(ctx context.Context, newfruit repository.Ne
 			"data":   newfruit,
 		},
 	)
+
 	newFruitID := u.storage.NewID()
 	fruitToPersist := newfruit.ToFruit(repository.FruitID(newFruitID))
+
 	u.logger.Debug(
 		"fruit data to persist",
 		loggers.Fields{
@@ -98,6 +118,7 @@ func (u *FruitMemoryRepository) Save(ctx context.Context, newfruit repository.Ne
 			"data":   fruitToPersist,
 		},
 	)
+
 	err := u.storage.Save(ctx, newFruitID, fruitToPersist)
 	if err != nil {
 		u.logger.Error(
@@ -107,8 +128,10 @@ func (u *FruitMemoryRepository) Save(ctx context.Context, newfruit repository.Ne
 				"error":  err,
 			},
 		)
-		return 0, errors.New("given fruit could not be stored")
+
+		return 0, errRecordCouldNotBeStored
 	}
+
 	return repository.FruitID(newFruitID), nil
 }
 
@@ -121,6 +144,7 @@ func (u *FruitMemoryRepository) Update(ctx context.Context, fruit repository.Fru
 			"data":   fruit,
 		},
 	)
+
 	err := u.storage.Update(ctx, repository.FruitIDValue(fruit.ID), fruit)
 	if err != nil {
 		u.logger.Error(
@@ -130,12 +154,14 @@ func (u *FruitMemoryRepository) Update(ctx context.Context, fruit repository.Fru
 				"error":  err,
 			},
 		)
-		return errors.New("given fruit could not be updated")
+
+		return errNotUpdatedFruit
 	}
+
 	return nil
 }
 
-// FindByID look for an fruit with the given id
+// FindByID look for an fruit with the given id.
 func (u *FruitMemoryRepository) FindByID(ctx context.Context, fruitID repository.FruitID) (*repository.Fruit, error) {
 	u.logger.Debug(
 		"reading fruit",
@@ -144,6 +170,7 @@ func (u *FruitMemoryRepository) FindByID(ctx context.Context, fruitID repository
 			"fruit_id": fruitID,
 		},
 	)
+
 	result, err := u.storage.FindByID(ctx, repository.FruitIDValue(fruitID))
 	if err != nil {
 		u.logger.Error(
@@ -153,12 +180,16 @@ func (u *FruitMemoryRepository) FindByID(ctx context.Context, fruitID repository
 				"error":  err,
 			},
 		)
-		return nil, errors.New("something went wrong trying to get the given fruit id")
+
+		return nil, errSomethingWrongFindByID
 	}
+
 	var got *repository.Fruit
+
 	if result == nil {
 		return got, nil
 	}
+
 	fruit, ok := result.(repository.Fruit)
 	if !ok {
 		u.logger.Error(
@@ -169,35 +200,43 @@ func (u *FruitMemoryRepository) FindByID(ctx context.Context, fruitID repository
 				"object": result,
 			},
 		)
-		return nil, errors.New("something went wrong trying to get the given fruit id")
+
+		return nil, errSomethingWrongFindByID
 	}
+
 	return &fruit, nil
 }
 
-// SearchWithFilters memory search
+// SearchWithFilters memory search.
 func (u *FruitMemoryRepository) SearchWithFilters(ctx context.Context, filter repository.FruitFilter) (repository.FindFruitsResult, error) {
 	result, err := u.storage.FindAll(ctx, filter.Start, filter.Count)
 	if err != nil {
 		return repository.FindFruitsResult{}, err
 	}
+
 	findResult := repository.FindFruitsResult{
 		Total: u.storage.Count(),
 		Start: filter.Start,
 		Count: filter.Count,
 	}
-	var fruits []repository.Fruit
+
+	fruits := make([]repository.Fruit, 0)
+
 	for _, v := range result {
 		fruit, ok := v.(repository.Fruit)
 		if !ok {
 			continue
 		}
+
 		fruits = append(fruits, fruit)
 	}
+
 	findResult.Fruits = fruits
+
 	return findResult, nil
 }
 
-// LoadDatasetWithFile load given file data into internal repository
+// LoadDatasetWithFile load given file data into internal repository.
 func (u *FruitMemoryRepository) LoadDatasetWithFile(ctx context.Context, filePath string) error {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -209,21 +248,27 @@ func (u *FruitMemoryRepository) LoadDatasetWithFile(ctx context.Context, filePat
 				"filepath": filePath,
 			},
 		)
+
 		u.datasetStatus.Ok = false
 		u.datasetStatus.Message = fmt.Sprintf("could not open file: %s", filePath)
-		return errors.New("could not open file")
+
+		return errOpenFile
 	}
+
 	defer file.Close()
+
 	err = u.LoadFruitDataset(ctx, bufio.NewScanner(file))
 	if err != nil {
 		u.datasetStatus.Ok = false
 		u.datasetStatus.Message = err.Error()
-		return errors.New("could not process file records")
+
+		return errProcessFileRecords
 	}
+
 	return nil
 }
 
-// LoadFruitDataset load given data into internal repository
+// LoadFruitDataset load given data into internal repository.
 func (u *FruitMemoryRepository) LoadFruitDataset(ctx context.Context, scanner *bufio.Scanner) error {
 	if scanner == nil {
 		u.logger.Info(
@@ -232,12 +277,15 @@ func (u *FruitMemoryRepository) LoadFruitDataset(ctx context.Context, scanner *b
 				"method": "memorydb.FruitMemoryRepository.LoadFruitDataset",
 			},
 		)
+
 		return nil
 	}
 
 	recordLine := 1
+
 	scanner.Split(bufio.ScanLines)
 	scanner.Scan() // first line has only column names
+
 	for scanner.Scan() {
 		fruit, err := u.buildFruit(scanner.Text())
 		if err != nil {
@@ -249,8 +297,13 @@ func (u *FruitMemoryRepository) LoadFruitDataset(ctx context.Context, scanner *b
 					"line":   recordLine,
 				},
 			)
-			return fmt.Errorf("loading fruit dataset, but record %d is not valid", recordLine)
+
+			return InvalidRecordError{
+				Message: fmt.Sprintf("loading fruit dataset, but record %d is not valid", recordLine),
+				Line:    recordLine,
+			}
 		}
+
 		err = u.storage.Save(ctx, repository.FruitIDValue(fruit.ID), *fruit)
 		if err != nil {
 			u.logger.Error(
@@ -261,13 +314,17 @@ func (u *FruitMemoryRepository) LoadFruitDataset(ctx context.Context, scanner *b
 					"data":   fruit,
 				},
 			)
+
 			u.datasetStatus.Ok = false
 			u.datasetStatus.Message = fmt.Sprintf("loading fruit dataset, but record %d could not be stored", recordLine)
-			return errors.New("dataset has invalid records")
+
+			return errDatasetInvalidRecords
 		}
+
 		u.storage.UpdateID(repository.FruitIDValue(fruit.ID))
 		recordLine++
 	}
+
 	return nil
 }
 
@@ -276,34 +333,39 @@ func (u *FruitMemoryRepository) DatasetStatus(_ context.Context) (repository.Fru
 	return u.datasetStatus, nil
 }
 
-// Count counts the number of fruits in the memory repo
+// Count counts the number of fruits in the memory repo.
 func (u *FruitMemoryRepository) Count() int {
 	return u.storage.Count()
 }
 
-// buildFruit build Fruit data from given record data
+// buildFruit build Fruit data from given record data.
 func (u *FruitMemoryRepository) buildFruit(record string) (*repository.Fruit, error) {
 	fruitValues := SplitAtCommas(record)
 	if len(fruitValues) != fieldsNumber {
 		return nil, NewColumnsError(len(fruitValues), record)
 	}
-	id, err := strconv.ParseInt(fruitValues[idColumn], base10, bits64)
+
+	fruitid, err := strconv.ParseInt(fruitValues[idColumn], base10, bits64)
 	if err != nil {
 		return nil, errIDMustBeAnInteger
 	}
+
 	year, err := strconv.Atoi(fruitValues[yearColumn])
 	if err != nil {
 		return nil, errYearMustBeAnInteger
 	}
+
 	var price float64
+
 	if fruitValues[priceColumn] != "" {
 		price, err = strconv.ParseFloat(fruitValues[priceColumn], bits32)
 		if err != nil {
 			return nil, errPriceMustBeAnInteger
 		}
 	}
+
 	fruit := repository.Fruit{
-		ID:             repository.FruitID(id),
+		ID:             repository.FruitID(fruitid),
 		Name:           fruitValues[nameColumn],
 		Variety:        fruitValues[varietyColumn],
 		Year:           year,
@@ -318,13 +380,16 @@ func (u *FruitMemoryRepository) buildFruit(record string) (*repository.Fruit, er
 		LocalName:      fruitValues[localNameColumn],
 		WikiPage:       fruitValues[wikiPageColumn],
 	}
+
 	return &fruit, nil
 }
 
 // SplitAtCommas split s at commas, ignoring commas in strings.
 func SplitAtCommas(value string) []string {
 	res := []string{}
+
 	var beg int
+
 	var inString bool
 
 	for idx := 0; idx < len(value); idx++ {
@@ -339,5 +404,6 @@ func SplitAtCommas(value string) []string {
 			}
 		}
 	}
+
 	return append(res, value[beg:])
 }

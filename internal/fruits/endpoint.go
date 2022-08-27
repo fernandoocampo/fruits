@@ -9,13 +9,19 @@ import (
 	"github.com/go-kit/kit/endpoint"
 )
 
-// Endyear is a wrapper for endyear
+// Endyear is a wrapper for endyear.
 type Endyear struct {
 	GetFruitWithIDEndpoint endpoint.Endpoint
 	CreateFruitEndpoint    endpoint.Endpoint
 	SearchFruitsEndpoint   endpoint.Endpoint
 	GetStatusEndpoint      endpoint.Endpoint
 }
+
+var (
+	errInvalidFruitID      = errors.New("invalid fruit id")
+	errInvalidFruitFilters = errors.New("invalid fruit filters")
+	errInvalidNewFruitType = errors.New("invalid new fruit type")
+)
 
 // NewEndyear Create the endyear for fruits-micro application.
 func NewEndyear(service FruitService, logger *loggers.Logger) Endyear {
@@ -39,7 +45,8 @@ func MakeGetFruitWithIDEndpoint(srv FruitService, logger *loggers.Logger) endpoi
 					"received": fmt.Sprintf("%t", request),
 				},
 			)
-			return nil, errors.New("invalid fruit id")
+
+			return nil, errInvalidFruitID
 		}
 
 		fruitFound, err := srv.GetFruitWithID(ctx, fruitID)
@@ -52,6 +59,7 @@ func MakeGetFruitWithIDEndpoint(srv FruitService, logger *loggers.Logger) endpoi
 				},
 			)
 		}
+
 		logger.Debug(
 			"find fruit by id endpoint",
 			loggers.Fields{
@@ -59,6 +67,7 @@ func MakeGetFruitWithIDEndpoint(srv FruitService, logger *loggers.Logger) endpoi
 				"result": fruitFound,
 			},
 		)
+
 		return newGetFruitWithIDResult(fruitFound, err), nil
 	}
 }
@@ -75,7 +84,8 @@ func MakeCreateFruitEndpoint(srv FruitService, logger *loggers.Logger) endpoint.
 					"received": fmt.Sprintf("%t", request),
 				},
 			)
-			return nil, errors.New("invalid new fruit type")
+
+			return nil, errInvalidNewFruitType
 		}
 
 		newid, err := srv.Create(ctx, *newFruit)
@@ -88,6 +98,7 @@ func MakeCreateFruitEndpoint(srv FruitService, logger *loggers.Logger) endpoint.
 				},
 			)
 		}
+
 		return newCreateFruitResult(newid, err), nil
 	}
 }
@@ -104,7 +115,8 @@ func MakeSearchFruitsEndpoint(srv FruitService, logger *loggers.Logger) endpoint
 					"received": fmt.Sprintf("%t", request),
 				},
 			)
-			return nil, errors.New("invalid fruit filters")
+
+			return nil, errInvalidFruitFilters
 		}
 
 		searchResult, err := srv.SearchFruits(ctx, fruitFilters)
@@ -117,6 +129,7 @@ func MakeSearchFruitsEndpoint(srv FruitService, logger *loggers.Logger) endpoint
 				},
 			)
 		}
+
 		return newSearchFruitsDataResult(searchResult, err), nil
 	}
 }
@@ -125,6 +138,7 @@ func MakeSearchFruitsEndpoint(srv FruitService, logger *loggers.Logger) endpoint
 func MakeGetStatusEndpoint(srv FruitService, logger *loggers.Logger) endpoint.Endpoint {
 	return func(ctx context.Context, _ interface{}) (interface{}, error) {
 		dataSetStatus := srv.DatasetStatus(ctx)
+
 		logger.Debug(
 			"get fruit dataset status",
 			loggers.Fields{
@@ -132,6 +146,7 @@ func MakeGetStatusEndpoint(srv FruitService, logger *loggers.Logger) endpoint.En
 				"result": dataSetStatus,
 			},
 		)
+
 		return dataSetStatus, nil
 	}
 }

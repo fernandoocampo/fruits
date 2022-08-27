@@ -12,6 +12,7 @@ func New(logger Repository) *MetricServer {
 	newMetricServer := MetricServer{
 		logger: logger,
 	}
+
 	return &newMetricServer
 }
 

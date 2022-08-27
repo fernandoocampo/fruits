@@ -1,6 +1,6 @@
 package repository
 
-// FruitID is the fruit identification type
+// FruitID is the fruit identification type.
 type FruitID int64
 
 // Fruit contains fruit data.
@@ -65,6 +65,7 @@ func FruitPrice(v float32) *float32 {
 	if v == 0 {
 		return nil
 	}
+
 	return &v
 }
 
@@ -74,10 +75,11 @@ func FruitPriceValue(v *float32) float32 {
 	if v == nil {
 		return 0
 	}
+
 	return *v
 }
 
-// FruitIDValue returns the value of the fruit id value as a int64
+// FruitIDValue returns the value of the fruit id value as a int64.
 func FruitIDValue(v FruitID) int64 {
 	return int64(v)
 }

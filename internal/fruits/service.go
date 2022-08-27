@@ -2,6 +2,7 @@ package fruits
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/fernandoocampo/fruits/internal/adapter/loggers"
@@ -22,7 +23,9 @@ type Service struct {
 	logger          *loggers.Logger
 }
 
-// NewService creates a new application service
+var ErrDataAccess = errors.New("something went wrong accessing db")
+
+// NewService creates a new application service.
 func NewService(fruitRepository Repository, logger *loggers.Logger) *Service {
 	return &Service{
 		fruitRepository: fruitRepository,
@@ -39,6 +42,7 @@ func (s *Service) GetFruitWithID(ctx context.Context, fruitID int64) (*Fruit, er
 			"fruitID": fruitID,
 		},
 	)
+
 	result, err := s.fruitRepository.FindByID(ctx, repository.FruitID(fruitID))
 	if err != nil {
 		s.logger.Error(
@@ -49,10 +53,12 @@ func (s *Service) GetFruitWithID(ctx context.Context, fruitID int64) (*Fruit, er
 				"error":   err,
 			},
 		)
-		return nil, err
+
+		return nil, ErrDataAccess
 	}
 
 	fruit := transformFruitPortOuttoFruit(result)
+
 	s.logger.Debug(
 		"fruit result",
 		loggers.Fields{
@@ -60,10 +66,11 @@ func (s *Service) GetFruitWithID(ctx context.Context, fruitID int64) (*Fruit, er
 			"fruit":  fruit,
 		},
 	)
+
 	return fruit, nil
 }
 
-// Create creates a fruit
+// Create creates a fruit.
 func (s *Service) Create(ctx context.Context, newfruit NewFruit) (int64, error) {
 	s.logger.Debug(
 		"creating fruit",
@@ -72,7 +79,8 @@ func (s *Service) Create(ctx context.Context, newfruit NewFruit) (int64, error) 
 			"newfruit": newfruit,
 		},
 	)
-	id, err := s.fruitRepository.Save(ctx, newfruit.ToFruitPortOut())
+
+	fruitid, err := s.fruitRepository.Save(ctx, newfruit.ToFruitPortOut())
 	if err != nil {
 		s.logger.Error(
 			"something goes wrong creating a new fruit",
@@ -81,19 +89,22 @@ func (s *Service) Create(ctx context.Context, newfruit NewFruit) (int64, error) 
 				"fruit":  newfruit,
 			},
 		)
-		return 0, err
+
+		return 0, ErrDataAccess
 	}
+
 	s.logger.Info(
-		"fruit was created successfuly",
+		"fruit was created successfully",
 		loggers.Fields{
 			"method": "Service.Create",
 			"fruit":  newfruit,
 		},
 	)
-	return repository.FruitIDValue(id), nil
+
+	return repository.FruitIDValue(fruitid), nil
 }
 
-// SearchFruits search fruits who match the given filters
+// SearchFruits search fruits who match the given filters.
 func (s *Service) SearchFruits(ctx context.Context, givenFilter SearchFruitFilter) (*SearchFruitsResult, error) {
 	s.logger.Debug(
 		"searching fruits",
@@ -102,6 +113,7 @@ func (s *Service) SearchFruits(ctx context.Context, givenFilter SearchFruitFilte
 			"filter": givenFilter,
 		},
 	)
+
 	filters := givenFilter.toRepositoryFilters()
 
 	repoResult, err := s.fruitRepository.SearchWithFilters(ctx, filters)
@@ -113,7 +125,8 @@ func (s *Service) SearchFruits(ctx context.Context, givenFilter SearchFruitFilte
 				"filter": givenFilter,
 			},
 		)
-		return nil, err
+
+		return nil, ErrDataAccess
 	}
 
 	result := toSearchFruitsResult(repoResult)
@@ -121,7 +134,7 @@ func (s *Service) SearchFruits(ctx context.Context, givenFilter SearchFruitFilte
 	return &result, nil
 }
 
-// DatasetStatus check the status of the fruit dataset
+// DatasetStatus check the status of the fruit dataset.
 func (s *Service) DatasetStatus(ctx context.Context) DatasetStatus {
 	s.logger.Debug(
 		"checking dataset status",
@@ -139,6 +152,7 @@ func (s *Service) DatasetStatus(ctx context.Context) DatasetStatus {
 				"error":  err,
 			},
 		)
+
 		return DatasetStatus{
 			Timestamp: time.Now().Unix(),
 			Status:    DatasetStateError,

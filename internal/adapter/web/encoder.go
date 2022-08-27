@@ -12,6 +12,13 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 )
 
+var (
+	errBuildingGetFruitResponse    = errors.New("cannot build get fruit response")
+	errBuildingFruitDatasetStatus  = errors.New("cannot build fruit dataset status response")
+	errBuildingCreateFruitResponse = errors.New("cannot build create fruit response")
+	errBuildingSearchFruitResponse = errors.New("cannot build search fruits response")
+)
+
 func makeEncodeCreateFruitRequest(logger *loggers.Logger) httptransport.EncodeResponseFunc {
 	return func(ctx context.Context, res http.ResponseWriter, response interface{}) error {
 		result, ok := response.(fruits.CreateFruitResult)
@@ -23,11 +30,15 @@ func makeEncodeCreateFruitRequest(logger *loggers.Logger) httptransport.EncodeRe
 					"method":   "encodeCreateFruitRequest",
 				},
 			)
-			return errors.New("cannot build create fruit response")
+
+			return errBuildingCreateFruitResponse
 		}
+
 		res.Header().Set("Content-Type", "application/json")
+
 		message := toCreateFruitResponse(result)
-		return json.NewEncoder(res).Encode(message)
+
+		return fmt.Errorf("%w", json.NewEncoder(res).Encode(message))
 	}
 }
 
@@ -42,11 +53,15 @@ func makeEncodeGetFruitWithIDResponse(logger *loggers.Logger) httptransport.Enco
 					"method":   "encodeGetFruitWithIDResponse",
 				},
 			)
-			return errors.New("cannot build get fruit response")
+
+			return errBuildingGetFruitResponse
 		}
+
 		res.Header().Set("Content-Type", "application/json")
+
 		message := toGetFruitWithIDResponse(result)
-		return json.NewEncoder(res).Encode(message)
+
+		return fmt.Errorf("%w", json.NewEncoder(res).Encode(message))
 	}
 }
 
@@ -61,11 +76,15 @@ func makeEncodeSearchFruitsResponse(logger *loggers.Logger) httptransport.Encode
 					"method":   "encodeSearchFruitsResponse",
 				},
 			)
-			return errors.New("cannot build search fruits response")
+
+			return errBuildingSearchFruitResponse
 		}
+
 		res.Header().Set("Content-Type", "application/json")
+
 		message := toSearchFruitsResponse(result)
-		return json.NewEncoder(res).Encode(message)
+
+		return fmt.Errorf("%w", json.NewEncoder(res).Encode(message))
 	}
 }
 
@@ -80,10 +99,14 @@ func makeEncodeGetStatusResponse(logger *loggers.Logger) httptransport.EncodeRes
 					"method":   "encodeGetStatusResponse",
 				},
 			)
-			return errors.New("cannot build fruit dataset status response")
+
+			return errBuildingFruitDatasetStatus
 		}
+
 		res.Header().Set("Content-Type", "application/json")
+
 		message := toFruitDatasetStatusResponse(result)
-		return json.NewEncoder(res).Encode(message)
+
+		return fmt.Errorf("%w", json.NewEncoder(res).Encode(message))
 	}
 }

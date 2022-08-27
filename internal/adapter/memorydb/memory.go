@@ -9,6 +9,13 @@ import (
 	"github.com/fernandoocampo/fruits/internal/adapter/loggers"
 )
 
+// UpdateEntityError if there is an error
+// updating an entity this is the error
+// to return.
+type UpdateEntityError struct {
+	Message string
+}
+
 // Repository is the repository handler for the map storage.
 type Repository struct {
 	lastID  int64
@@ -29,10 +36,15 @@ func NewRepository(logger *loggers.Logger) *Repository {
 		storage: make(map[int64]interface{}),
 		logger:  logger,
 	}
+
 	return &newRepo
 }
 
-// Save store the given entity and return its id
+func (u UpdateEntityError) Error() string {
+	return u.Message
+}
+
+// Save store the given entity and return its id.
 func (u *Repository) Save(ctx context.Context, entityID int64, entity interface{}) error {
 	u.logger.Debug(
 		"storing entity",
@@ -41,16 +53,18 @@ func (u *Repository) Save(ctx context.Context, entityID int64, entity interface{
 			"entity": entity,
 		},
 	)
+
 	u.locker.Lock()
 	{
 		u.storage[entityID] = entity
 		u.ids = append(u.ids, entityID)
 	}
 	u.locker.Unlock()
+
 	return nil
 }
 
-// Update update the given entity
+// Update update the given entity.
 func (u *Repository) Update(ctx context.Context, entityID int64, entity interface{}) error {
 	u.logger.Debug(
 		"updating entity",
@@ -68,7 +82,13 @@ func (u *Repository) Update(ctx context.Context, entityID int64, entity interfac
 				"entity": entity,
 			},
 		)
-		return fmt.Errorf("cannot update given entity %v, because it doesn't contain a valid id", entity)
+
+		return UpdateEntityError{
+			Message: fmt.Sprintf(
+				"cannot update given entity %v, because it doesn't contain a valid id",
+				entity,
+			),
+		}
 	}
 
 	u.locker.Lock()
@@ -79,6 +99,7 @@ func (u *Repository) Update(ctx context.Context, entityID int64, entity interfac
 	}
 
 	u.storage[entityID] = entity
+
 	return nil
 }
 
@@ -91,16 +112,18 @@ func (u *Repository) FindByID(ctx context.Context, entityID int64) (interface{},
 			"entity_id": entityID,
 		},
 	)
+
 	var entity interface{}
-	var ok bool
+
+	var recordExist bool
 
 	u.locker.Lock()
 	{
-		entity, ok = u.storage[entityID]
+		entity, recordExist = u.storage[entityID]
 	}
 	u.locker.Unlock()
 
-	if !ok {
+	if !recordExist {
 		return entity, nil
 	}
 
@@ -116,7 +139,7 @@ func (u *Repository) FindByID(ctx context.Context, entityID int64) (interface{},
 	return entity, nil
 }
 
-// FindAll return all entities
+// FindAll return all entities.
 func (u *Repository) FindAll(ctx context.Context, start, count int) ([]interface{}, error) {
 	u.logger.Debug(
 		"reading all entities",
@@ -126,6 +149,7 @@ func (u *Repository) FindAll(ctx context.Context, start, count int) ([]interface
 			"count":  count,
 		},
 	)
+
 	result := make([]interface{}, 0)
 
 	u.locker.Lock()
@@ -134,10 +158,13 @@ func (u *Repository) FindAll(ctx context.Context, start, count int) ([]interface
 			start = 1
 			count = 0
 		}
+
 		newcount := start + count - 1
+
 		if len(u.ids) < count {
 			newcount = len(u.ids)
 		}
+
 		ids := u.ids[start-1 : newcount]
 		for _, id := range ids {
 			v, ok := u.storage[id]
@@ -147,6 +174,7 @@ func (u *Repository) FindAll(ctx context.Context, start, count int) ([]interface
 			result = append(result, v)
 		}
 	}
+
 	u.locker.Unlock()
 
 	u.logger.Debug(
@@ -162,7 +190,7 @@ func (u *Repository) FindAll(ctx context.Context, start, count int) ([]interface
 	return result, nil
 }
 
-// Count counts records in the memory repo
+// Count counts records in the memory repo.
 func (u *Repository) Count() int {
 	var count int
 
@@ -175,24 +203,25 @@ func (u *Repository) Count() int {
 	return count
 }
 
-// entityNotExist return true if the given entity id does not exist in the repository
+// entityNotExist return true if the given entity id does not exist in the repository.
 func (u *Repository) entityNotExist(entityID int64) bool {
 	_, ok := u.storage[entityID]
 
 	return !ok
 }
 
-// NewID create and return a new id for this repository
+// NewID create and return a new id for this repository.
 func (u *Repository) NewID() int64 {
 	u.locker.Lock()
 	defer u.locker.Unlock()
 	newID := u.nextID
 	u.lastID = newID
 	u.nextID++
+
 	return newID
 }
 
-// UpdateID update the fruit id sequence on this repository
+// UpdateID update the fruit id sequence on this repository.
 func (u *Repository) UpdateID(newID int64) {
 	u.locker.Lock()
 	{

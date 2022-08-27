@@ -15,11 +15,12 @@ type Application struct {
 	LoadDataset           bool   `env:"LOAD_DATASET" envDefault:"true"`
 }
 
-// Load load application configuration
+// Load load application configuration.
 func Load() (Application, error) {
 	cfg := new(Application)
 	if err := env.Parse(cfg); err != nil {
 		return *cfg, fmt.Errorf("something went wrong loading app configuration: %w", err)
 	}
+
 	return *cfg, nil
 }
