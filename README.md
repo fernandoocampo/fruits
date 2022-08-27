@@ -1,4 +1,4 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/fernandoocampo/fruits)](https://goreportcard.com/report/github.com/fernandoocampo/fruits) ![CI](https://github.com/fernandoocampo/fruits/actions/workflows/build-test-app.yaml/badge.svg?branch=master) ![Docker Build](https://github.com/fernandoocampo/fruits/actions/workflows/docker-image.yml/badge.svg?branch=master) ![GitHub release](https://img.shields.io/github/v/release/fernandoocampo/fruits.svg?include_prereleases&style=plastic)
+[![Go Report Card](https://goreportcard.com/badge/github.com/fernandoocampo/fruits)](https://goreportcard.com/report/github.com/fernandoocampo/fruits) ![CI](https://github.com/fernandoocampo/fruits/actions/workflows/build-test-app.yaml/badge.svg?branch=master) ![Docker Build](https://github.com/fernandoocampo/fruits/actions/workflows/docker-image.yml/badge.svg?branch=master) ![linter](https://github.com/fernandoocampo/fruits/actions/workflows/golangci-lint.yml/badge.svg?branch=master) ![GitHub release](https://img.shields.io/github/v/release/fernandoocampo/fruits.svg?include_prereleases&style=plastic)
 
 # fruits
 
