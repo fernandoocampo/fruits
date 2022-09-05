@@ -42,3 +42,5 @@ helm-lint:
 	helm lint k8s-v2/fruits
 helm-install:
 	helm install --name fruits ./k8s-v2/fruits
+test:
+	go test -race ./...
