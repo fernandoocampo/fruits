@@ -32,6 +32,12 @@ or run this shortcut
 make run-local
 ```
 
+or
+
+```sh
+make test
+```
+
 3. once you finished to use the environment, follow these steps
 
 ```sh
