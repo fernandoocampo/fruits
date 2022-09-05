@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -116,7 +116,7 @@ func makeDecodeCreateFruitRequest(logger *loggers.Logger) httptransport.DecodeRe
 
 		var newFruitRequest NewFruit
 
-		body, err := ioutil.ReadAll(req.Body)
+		body, err := io.ReadAll(req.Body)
 		if err != nil {
 			return nil, fmt.Errorf("something went wrong decoding create fruit request: %w", err)
 		}

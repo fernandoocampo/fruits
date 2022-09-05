@@ -12,6 +12,12 @@ linters:
     - scopelint
     - maligned
     - golint
+    - wastedassign
+    - structcheck
+    - sqlclosecheck
+    - rowserrcheck
+    - contextcheck
+    - ifshort
 linters-settings:
   tagliatelle:
     # Check the struck tag name case.

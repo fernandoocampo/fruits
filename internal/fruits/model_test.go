@@ -189,12 +189,13 @@ func TestNewValidation(t *testing.T) {
 				WikiPage:    "@kerinokeefe",
 			},
 			want: fruits.MandatoryError{
-				Fields: []string{"vault"},
+				Fields: []string{"name", "classification", "country", "vault"},
 			},
 		},
 	}
 
 	for name, test := range cases {
+		name, test := name, test
 		t.Run(name, func(st *testing.T) {
 			st.Parallel()
 
