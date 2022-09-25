@@ -5,8 +5,8 @@ GOCLEAN=$(GOCMD) clean
 SRC_FOLDER=cmd/fruitsd
 BINARY_NAME=bin/fruits
 BINARY_UNIX=$(BINARY_NAME)-amd64-linux
-DOCKER_REPO=vivekteam
-DOCKER_CONTAINER=fruits
+DOCKER_REPO=fdocampo
+DOCKER_CONTAINER=frutal
 
 all: build build-linux
 

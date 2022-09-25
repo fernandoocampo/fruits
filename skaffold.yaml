@@ -1,0 +1,14 @@
+apiVersion: skaffold/v2beta29
+kind: Config
+build:
+  artifacts:
+  - image: fdocampo/frutal
+deploy:
+  helm:
+    releases:
+    - name: fruits
+      namespace: default
+      chartPath: ./k8s-v2/fruits
+      valuesFiles: [./k8s-v2/fruits/values.yaml]
+      imageStrategy:
+        fqn: {}
