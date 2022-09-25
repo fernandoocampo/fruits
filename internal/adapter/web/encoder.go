@@ -16,6 +16,7 @@ var (
 	errBuildingGetFruitResponse    = errors.New("cannot build get fruit response")
 	errBuildingFruitDatasetStatus  = errors.New("cannot build fruit dataset status response")
 	errBuildingCreateFruitResponse = errors.New("cannot build create fruit response")
+	errEncodingResultResponse      = errors.New("cannot encode result")
 	errBuildingSearchFruitResponse = errors.New("cannot build search fruits response")
 )
 
@@ -38,7 +39,20 @@ func makeEncodeCreateFruitRequest(logger *loggers.Logger) httptransport.EncodeRe
 
 		message := toCreateFruitResponse(result)
 
-		return fmt.Errorf("%w", json.NewEncoder(res).Encode(message))
+		err := json.NewEncoder(res).Encode(message)
+		if err != nil {
+			logger.Error(
+				"cannot encode Result",
+				loggers.Fields{
+					"result": fmt.Sprintf("%+v", message),
+					"method": "encodeCreateFruitRequest",
+				},
+			)
+
+			return errEncodingResultResponse
+		}
+
+		return nil
 	}
 }
 
@@ -61,7 +75,20 @@ func makeEncodeGetFruitWithIDResponse(logger *loggers.Logger) httptransport.Enco
 
 		message := toGetFruitWithIDResponse(result)
 
-		return fmt.Errorf("%w", json.NewEncoder(res).Encode(message))
+		err := json.NewEncoder(res).Encode(message)
+		if err != nil {
+			logger.Error(
+				"cannot encode Result",
+				loggers.Fields{
+					"result": fmt.Sprintf("%+v", message),
+					"method": "encodeGetFruitWithIDResponse",
+				},
+			)
+
+			return errEncodingResultResponse
+		}
+
+		return nil
 	}
 }
 
@@ -84,7 +111,20 @@ func makeEncodeSearchFruitsResponse(logger *loggers.Logger) httptransport.Encode
 
 		message := toSearchFruitsResponse(result)
 
-		return fmt.Errorf("%w", json.NewEncoder(res).Encode(message))
+		err := json.NewEncoder(res).Encode(message)
+		if err != nil {
+			logger.Error(
+				"cannot encode Result",
+				loggers.Fields{
+					"result": fmt.Sprintf("%+v", message),
+					"method": "encodeSearchFruitsResponse",
+				},
+			)
+
+			return errEncodingResultResponse
+		}
+
+		return nil
 	}
 }
 
@@ -107,6 +147,19 @@ func makeEncodeGetStatusResponse(logger *loggers.Logger) httptransport.EncodeRes
 
 		message := toFruitDatasetStatusResponse(result)
 
-		return fmt.Errorf("%w", json.NewEncoder(res).Encode(message))
+		err := json.NewEncoder(res).Encode(message)
+		if err != nil {
+			logger.Error(
+				"cannot encode Result",
+				loggers.Fields{
+					"result": fmt.Sprintf("%+v", message),
+					"method": "encodeGetStatusResponse",
+				},
+			)
+
+			return errEncodingResultResponse
+		}
+
+		return nil
 	}
 }
