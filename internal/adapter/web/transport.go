@@ -9,9 +9,16 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type aa struct{}
+
+func (a aa) ServeHTTP(rw http.ResponseWriter, req *http.Request) {}
+
 // NewHTTPServer is a factory to create http servers for this project.
 func NewHTTPServer(endyear fruits.Endyear, logger *loggers.Logger) http.Handler {
 	router := mux.NewRouter()
+	router.Methods(http.MethodGet).Path("/fruit/{id}").Handler(
+		aa{},
+	)
 	router.Methods(http.MethodGet).Path("/fruit/{id}").Handler(
 		httptransport.NewServer(
 			endyear.GetFruitWithIDEndpoint,
