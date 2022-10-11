@@ -1,9 +1,14 @@
-name: Docker Image CI
+name: build
 
 on:
   push:
     tags:
       - 'v*'
+  workflow_run:
+    workflows: 
+      - "quality"
+    types:
+      - completed
 
 jobs:
 

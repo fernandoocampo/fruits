@@ -1,6 +1,6 @@
 # This workflow will build a go project
 
-name: fruits-ci
+name: quality
 
 on:
   push:
@@ -9,6 +9,13 @@ on:
   pull_request:
     branches:
       - "master"
+  workflow_run:
+    workflows: 
+      - "static-analysis"
+    types:
+      - completed
+    branches: "master"
+      
 
 jobs:
   build:
