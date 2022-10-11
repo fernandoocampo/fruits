@@ -26,7 +26,10 @@ jobs:
           echo "::set-output name=commit::$(git rev-parse HEAD)"
           echo "::set-output name=version::$(git describe --dirty --tags --always)"
       - name: set ldflags env var
-        run: echo $LDFLAGS
+        run: |
+          echo $LDFLAGS
+          echo ${GITHUB_SHA::8}
+          echo ${GITHUB_SHA}
         env:
           LDFLAGS: "-X main.Version=${{ steps.metadata.outputs.version }} -X main.GitCommit=${{ steps.metadata.outputs.commit }} -X main.BuildDate=${{ steps.metadata.outputs.date }} -s -w"
       - name: Setup go
