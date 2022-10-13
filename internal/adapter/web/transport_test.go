@@ -50,7 +50,7 @@ func TestGetFruitSuccessfully(t *testing.T) {
 		Success: true,
 		Data: &web.Fruit{
 			ID:             1234,
-			Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
+			Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
 			Variety:        "White Blend",
 			Vault:          "Nicosia",
 			Year:           87,
@@ -58,15 +58,15 @@ func TestGetFruitSuccessfully(t *testing.T) {
 			Province:       "Sicily & Sardinia",
 			Region:         "Etna",
 			Description:    "brisk acidity",
-			Classification: "Vulk√† Bianco",
-			LocalName:      "Kerin OÄôKeefe",
+			Classification: "Vulka Bianco",
+			LocalName:      "Kerin OoKeefe",
 			WikiPage:       "@kerinokeefe",
 		},
 		Errors: nil,
 	}
 	fruitToReturn := fruits.Fruit{
 		ID:             1234,
-		Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
+		Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
 		Variety:        "White Blend",
 		Vault:          "Nicosia",
 		Year:           87,
@@ -74,15 +74,15 @@ func TestGetFruitSuccessfully(t *testing.T) {
 		Province:       "Sicily & Sardinia",
 		Region:         "Etna",
 		Description:    "brisk acidity",
-		Classification: "Vulk√† Bianco",
-		LocalName:      "Kerin OÄôKeefe",
+		Classification: "Vulka Bianco",
+		LocalName:      "Kerin OoKeefe",
 		WikiPage:       "@kerinokeefe",
 	}
-	fruitEndyear := fruits.Endyear{
+	fruitEndpoints := fruits.Endpoints{
 		GetFruitWithIDEndpoint: makeDummyGetFruitWithIDSuccessfullyEndpoint(t, &fruitToReturn, nil),
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
-	httpHandler := web.NewHTTPServer(fruitEndyear, logger)
+	httpHandler := web.NewHTTPServer(fruitEndpoints, logger)
 	dummyServer := httptest.NewServer(httpHandler)
 	defer dummyServer.Close()
 
@@ -154,11 +154,11 @@ func TestSearchFruitsSuccessfully(t *testing.T) {
 		Start: 1,
 		Count: 10,
 	}
-	fruitEndyear := fruits.Endyear{
+	fruitEndpoints := fruits.Endpoints{
 		SearchFruitsEndpoint: makeDummySearchFruitsSuccessfullyEndpoint(t, expectedFilter, &serviceResult, nil),
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
-	httpHandler := web.NewHTTPServer(fruitEndyear, logger)
+	httpHandler := web.NewHTTPServer(fruitEndpoints, logger)
 	dummyServer := httptest.NewServer(httpHandler)
 	defer dummyServer.Close()
 
@@ -196,11 +196,11 @@ func TestGetFruitNotFound(t *testing.T) {
 		Data:    nil,
 		Errors:  nil,
 	}
-	fruitEndyear := fruits.Endyear{
+	fruitEndpoints := fruits.Endpoints{
 		GetFruitWithIDEndpoint: makeDummyGetFruitWithIDSuccessfullyEndpoint(t, nil, nil),
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
-	httpHandler := web.NewHTTPServer(fruitEndyear, logger)
+	httpHandler := web.NewHTTPServer(fruitEndpoints, logger)
 	dummyServer := httptest.NewServer(httpHandler)
 	defer dummyServer.Close()
 
@@ -239,11 +239,11 @@ func TestGetFruitWithError(t *testing.T) {
 		Errors:  []string{"any error"},
 	}
 	errorToReturn := errAnyError
-	fruitEndyear := fruits.Endyear{
+	fruitEndpoints := fruits.Endpoints{
 		GetFruitWithIDEndpoint: makeDummyGetFruitWithIDSuccessfullyEndpoint(t, nil, errorToReturn),
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
-	httpHandler := web.NewHTTPServer(fruitEndyear, logger)
+	httpHandler := web.NewHTTPServer(fruitEndpoints, logger)
 	dummyServer := httptest.NewServer(httpHandler)
 	defer dummyServer.Close()
 
@@ -276,7 +276,7 @@ func TestPostFruitSuccessfully(t *testing.T) {
 	t.Parallel()
 
 	newFruit := web.NewFruit{
-		Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
+		Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
 		Variety:        "White Blend",
 		Vault:          "Nicosia",
 		Year:           87,
@@ -284,8 +284,8 @@ func TestPostFruitSuccessfully(t *testing.T) {
 		Province:       "Sicily & Sardinia",
 		Region:         "Etna",
 		Description:    "brisk acidity",
-		Classification: "Vulk√† Bianco",
-		LocalName:      "Kerin OÄôKeefe",
+		Classification: "Vulka Bianco",
+		LocalName:      "Kerin OoKeefe",
 		WikiPage:       "@kerinokeefe",
 	}
 	newFruitJson, err := json.Marshal(newFruit)
@@ -293,11 +293,11 @@ func TestPostFruitSuccessfully(t *testing.T) {
 		t.Errorf("unexpected error marshalling new fruit: %s", err)
 		t.FailNow()
 	}
-	fruitEndyear := fruits.Endyear{
+	fruitEndpoints := fruits.Endpoints{
 		CreateFruitEndpoint: makeDummyCreateFruitSuccessfullyEndpoint(t, 1234, nil),
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
-	fruitHandler := web.NewHTTPServer(fruitEndyear, logger)
+	fruitHandler := web.NewHTTPServer(fruitEndpoints, logger)
 
 	dummyServer := httptest.NewServer(fruitHandler)
 	defer dummyServer.Close()
@@ -336,7 +336,7 @@ func TestPostFruitWithError(t *testing.T) {
 	t.Parallel()
 
 	newFruit := web.NewFruit{
-		Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
+		Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
 		Variety:        "White Blend",
 		Vault:          "Nicosia",
 		Year:           87,
@@ -344,8 +344,8 @@ func TestPostFruitWithError(t *testing.T) {
 		Province:       "Sicily & Sardinia",
 		Region:         "Etna",
 		Description:    "brisk acidity",
-		Classification: "Vulk√† Bianco",
-		LocalName:      "Kerin OÄôKeefe",
+		Classification: "Vulka Bianco",
+		LocalName:      "Kerin OoKeefe",
 		WikiPage:       "@kerinokeefe",
 	}
 	newFruitJson, err := json.Marshal(newFruit)
@@ -353,11 +353,11 @@ func TestPostFruitWithError(t *testing.T) {
 		t.Errorf("unexpected error marshalling new fruit: %s", err)
 		t.FailNow()
 	}
-	fruitEndyear := fruits.Endyear{
+	fruitEndpoints := fruits.Endpoints{
 		CreateFruitEndpoint: makeDummyCreateFruitSuccessfullyEndpoint(t, 0, errAnyError),
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
-	fruitHandler := web.NewHTTPServer(fruitEndyear, logger)
+	fruitHandler := web.NewHTTPServer(fruitEndpoints, logger)
 
 	dummyServer := httptest.NewServer(fruitHandler)
 	defer dummyServer.Close()
@@ -403,11 +403,11 @@ func TestStatusSuccessfully(t *testing.T) {
 	status := fruits.DatasetStateOK
 	errorMessage := ""
 	timeStamp := int64(1234)
-	fruitEndyear := fruits.Endyear{
+	fruitEndpoints := fruits.Endpoints{
 		GetStatusEndpoint: makeDummyGetStatusEndpoint(status, errorMessage, timeStamp),
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
-	httpHandler := web.NewHTTPServer(fruitEndyear, logger)
+	httpHandler := web.NewHTTPServer(fruitEndpoints, logger)
 	dummyServer := httptest.NewServer(httpHandler)
 	defer dummyServer.Close()
 

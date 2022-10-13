@@ -19,7 +19,7 @@ func TestFindFruitSuccessfully(t *testing.T) {
 	fruitID := int64(1234)
 	expectedFruit := fruits.Fruit{
 		ID:             1234,
-		Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
+		Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
 		Variety:        "White Blend",
 		Vault:          "Nicosia",
 		Year:           87,
@@ -27,7 +27,7 @@ func TestFindFruitSuccessfully(t *testing.T) {
 		Province:       "Sicily & Sardinia",
 		Region:         "Etna",
 		Description:    "brisk acidity",
-		Classification: "Vulk√† Bianco",
+		Classification: "Vulka Bianco",
 		LocalName:      "Kerin Test",
 		WikiPage:       "@kerinokeefe",
 	}
@@ -36,7 +36,7 @@ func TestFindFruitSuccessfully(t *testing.T) {
 	existingFruitID := int64(1234)
 	existingFruit := repository.Fruit{
 		ID:             repository.FruitID(existingFruitID),
-		Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
+		Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
 		Variety:        "White Blend",
 		Vault:          "Nicosia",
 		Year:           87,
@@ -44,7 +44,7 @@ func TestFindFruitSuccessfully(t *testing.T) {
 		Province:       "Sicily & Sardinia",
 		Region:         "Etna",
 		Description:    "brisk acidity",
-		Classification: "Vulk√† Bianco",
+		Classification: "Vulka Bianco",
 		LocalName:      "Kerin Test",
 		WikiPage:       "@kerinokeefe",
 	}

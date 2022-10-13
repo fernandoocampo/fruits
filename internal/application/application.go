@@ -56,6 +56,13 @@ func (i *Instance) Run() error {
 	i.logger.SetLoggerLevel(loggers.Level(i.configuration.LogLevel))
 	i.logger.Debug("application configuration", loggers.Fields{"parameters": i.configuration})
 
+	i.logger.Info("metadata",
+		loggers.Fields{
+			"version": i.configuration.Version,
+			"commit":  i.configuration.CommitHash,
+		},
+	)
+
 	repoFruit := i.createFruitRepository()
 	serviceFruit := fruits.NewService(repoFruit, i.logger)
 
@@ -72,11 +79,11 @@ func (i *Instance) Run() error {
 	}()
 
 	middlewareFruit := fruits.NewFruitMiddleware(serviceFruit, monitorWorker)
-	endyear := fruits.NewEndyear(middlewareFruit, i.logger)
+	endpoints := fruits.NewEndpoints(middlewareFruit, i.logger)
 
 	eventStream := make(chan Event)
 	i.listenToOSSignal(eventStream)
-	i.startWebServer(endyear, eventStream)
+	i.startWebServer(endpoints, eventStream)
 
 	eventMessage := <-eventStream
 
@@ -134,10 +141,10 @@ func (i *Instance) createMonitoringWorker(repoFruit monitoring.FruitRepository) 
 }
 
 // startWebServer starts the web server.
-func (i *Instance) startWebServer(endyear fruits.Endyear, eventStream chan<- Event) {
+func (i *Instance) startWebServer(endpoints fruits.Endpoints, eventStream chan<- Event) {
 	go func() {
 		i.logger.Info("starting http server", loggers.Fields{"http": i.configuration.ApplicationPort})
-		handler := web.NewHTTPServer(endyear, i.logger)
+		handler := web.NewHTTPServer(endpoints, i.logger)
 
 		err := http.ListenAndServe(i.configuration.ApplicationPort, handler)
 		if err != nil {

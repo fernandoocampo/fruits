@@ -9,8 +9,8 @@ import (
 	"github.com/go-kit/kit/endpoint"
 )
 
-// Endyear is a wrapper for endyear.
-type Endyear struct {
+// Endpoints is a wrapper for endpoints.
+type Endpoints struct {
 	GetFruitWithIDEndpoint endpoint.Endpoint
 	CreateFruitEndpoint    endpoint.Endpoint
 	SearchFruitsEndpoint   endpoint.Endpoint
@@ -23,9 +23,9 @@ var (
 	errInvalidNewFruitType = errors.New("invalid new fruit type")
 )
 
-// NewEndyear Create the endyear for fruits-micro application.
-func NewEndyear(service FruitService, logger *loggers.Logger) Endyear {
-	return Endyear{
+// NewEndpoints Create the endpoints for fruits-micro application.
+func NewEndpoints(service FruitService, logger *loggers.Logger) Endpoints {
+	return Endpoints{
 		GetFruitWithIDEndpoint: MakeGetFruitWithIDEndpoint(service, logger),
 		CreateFruitEndpoint:    MakeCreateFruitEndpoint(service, logger),
 		SearchFruitsEndpoint:   MakeSearchFruitsEndpoint(service, logger),

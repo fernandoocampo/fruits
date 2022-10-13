@@ -68,7 +68,7 @@ func TestCreateFruitSuccessfully(t *testing.T) {
 		repo: make(map[int64]repository.Fruit),
 	}
 	newFruit := fruits.NewFruit{
-		Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
+		Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
 		Variety:        "White Blend",
 		Vault:          "Nicosia",
 		Year:           87,
@@ -76,8 +76,8 @@ func TestCreateFruitSuccessfully(t *testing.T) {
 		Province:       "Sicily & Sardinia",
 		Region:         "Etna",
 		Description:    "brisk acidity",
-		Classification: "Vulk√† Bianco",
-		LocalName:      "Kerin OÄôKeefe",
+		Classification: "Vulka Bianco",
+		LocalName:      "Kerin OoKeefe",
 		WikiPage:       "@kerinokeefe",
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)

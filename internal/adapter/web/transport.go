@@ -10,29 +10,29 @@ import (
 )
 
 // NewHTTPServer is a factory to create http servers for this project.
-func NewHTTPServer(endyear fruits.Endyear, logger *loggers.Logger) http.Handler {
+func NewHTTPServer(fruitEndpoints fruits.Endpoints, logger *loggers.Logger) http.Handler {
 	router := mux.NewRouter()
 	router.Methods(http.MethodGet).Path("/fruit/{id}").Handler(
 		httptransport.NewServer(
-			endyear.GetFruitWithIDEndpoint,
+			fruitEndpoints.GetFruitWithIDEndpoint,
 			makeDecodeGetFruitWithIDRequest(logger),
 			makeEncodeGetFruitWithIDResponse(logger)),
 	)
 	router.Methods(http.MethodPut).Path("/fruit").Handler(
 		httptransport.NewServer(
-			endyear.CreateFruitEndpoint,
+			fruitEndpoints.CreateFruitEndpoint,
 			makeDecodeCreateFruitRequest(logger),
 			makeEncodeCreateFruitRequest(logger)),
 	)
 	router.Methods(http.MethodGet).Path("/fruit").Handler(
 		httptransport.NewServer(
-			endyear.SearchFruitsEndpoint,
+			fruitEndpoints.SearchFruitsEndpoint,
 			makeDecodeSearchFruitsRequest(logger),
 			makeEncodeSearchFruitsResponse(logger)),
 	)
 	router.Methods(http.MethodGet).Path("/status").Handler(
 		httptransport.NewServer(
-			endyear.GetStatusEndpoint,
+			fruitEndpoints.GetStatusEndpoint,
 			makeEmptyDecoder(logger),
 			makeEncodeGetStatusResponse(logger)),
 	)

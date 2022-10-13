@@ -16,7 +16,7 @@ func TestCreateFruitInMemoryDB(t *testing.T) {
 	newFruitID := int64(1)
 	newFruit := repository.Fruit{
 		ID:             repository.FruitID(newFruitID),
-		Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
+		Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
 		Variety:        "White Blend",
 		Vault:          "Nicosia",
 		Year:           87,
@@ -24,13 +24,13 @@ func TestCreateFruitInMemoryDB(t *testing.T) {
 		Province:       "Sicily & Sardinia",
 		Region:         "Etna",
 		Description:    "brisk acidity",
-		Classification: "Vulk√† Bianco",
-		LocalName:      "Kerin OÄôKeefe",
+		Classification: "Vulka Bianco",
+		LocalName:      "Kerin OoKeefe",
 		WikiPage:       "@kerinokeefe",
 	}
 	expectedFruit := repository.Fruit{
 		ID:             repository.FruitID(newFruitID),
-		Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
+		Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
 		Variety:        "White Blend",
 		Vault:          "Nicosia",
 		Year:           87,
@@ -38,8 +38,8 @@ func TestCreateFruitInMemoryDB(t *testing.T) {
 		Province:       "Sicily & Sardinia",
 		Region:         "Etna",
 		Description:    "brisk acidity",
-		Classification: "Vulk√† Bianco",
-		LocalName:      "Kerin OÄôKeefe",
+		Classification: "Vulka Bianco",
+		LocalName:      "Kerin OoKeefe",
 		WikiPage:       "@kerinokeefe",
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
@@ -60,7 +60,7 @@ func TestCreateFruitWithRepository(t *testing.T) {
 
 	fruitID := int64(1234)
 	newFruit := repository.NewFruit{
-		Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
+		Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
 		Variety:        "White Blend",
 		Vault:          "Nicosia",
 		Year:           87,
@@ -68,8 +68,8 @@ func TestCreateFruitWithRepository(t *testing.T) {
 		Province:       "Sicily & Sardinia",
 		Region:         "Etna",
 		Description:    "brisk acidity",
-		Classification: "Vulk√† Bianco",
-		LocalName:      "Kerin OÄôKeefe",
+		Classification: "Vulka Bianco",
+		LocalName:      "Kerin OoKeefe",
 		WikiPage:       "@kerinokeefe",
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
@@ -91,7 +91,7 @@ func TestCreateFruitInMemoryDBWithLimit(t *testing.T) {
 	newDB := memorydb.NewRepository(logger)
 	ctx := context.TODO()
 	newFruit := repository.NewFruit{
-		Name:           "Nicosia 2013 Vulk√† Bianco  (Etna)",
+		Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
 		Variety:        "White Blend",
 		Vault:          "Nicosia",
 		Year:           87,
@@ -99,8 +99,8 @@ func TestCreateFruitInMemoryDBWithLimit(t *testing.T) {
 		Province:       "Sicily & Sardinia",
 		Region:         "Etna",
 		Description:    "brisk acidity",
-		Classification: "Vulk√† Bianco",
-		LocalName:      "Kerin OÄôKeefe",
+		Classification: "Vulka Bianco",
+		LocalName:      "Kerin OoKeefe",
 		WikiPage:       "@kerinokeefe",
 	}
 

@@ -12,6 +12,10 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./bin/fruits-service ./cmd
 
 # Runnable image
 FROM alpine
+ARG appVersion
+ARG commitHash
+ENV VERSION=$appVersion
+ENV COMMIT_HASH=$commitHash
 COPY --from=builder /fruits/bin/fruits-service /bin/fruits-service
 RUN ls /bin/fruits-service
 WORKDIR /bin

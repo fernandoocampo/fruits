@@ -8,6 +8,8 @@ import (
 
 // Application contains data related to application configuration parameters.
 type Application struct {
+	Version               string `env:"VERSION" envDefault:"local"`
+	CommitHash            string `env:"COMMIT_HASH" envDefault:"local"`
 	LogLevel              int    `env:"LOG_LEVEL" envDefault:"2"` // 1 debug
 	ApplicationPort       string `env:"APPLICATION_PORT" envDefault:":8080"`
 	MetricsIntervalMillis int    `env:"METRICS_INTERVAL_MILLIS" envDefault:"60000"`

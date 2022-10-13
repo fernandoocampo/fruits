@@ -129,7 +129,7 @@
             "method": "PUT",
             "body": {
                 "mimeType": "application/json",
-                "text": "{\n\t\"name\":               \"Nicosia 2043 Vulk√† Bianco  (Etna)\",\n\t\"variety\":             \"White Blend\",\n\t\"vault\":              \"Nicosia\",\n\t\"year\":              87,\n\t\"price\":\t\t\t\t\t\t\t 53.46,\n\t\"country\":             \"Italy\",\n\t\"province\":            \"Sicily & Sardinia\",\n\t\"region\":             \"Etna\",\n\t\"finca\":             \"Etna\",\n\t\"description\":         \"brisk acidity\",\n\t\"classification\":         \"Vulk√† Bianco\",\n\t\"local_name\":          \"Kerin OÄôKeefe\",\n\t\"wiki_page\": \"@kerinokeefe\"\n}"
+                "text": "{\n\t\"name\":               \"Nicosia 2043 Vulka Bianco  (Etna)\",\n\t\"variety\":             \"White Blend\",\n\t\"vault\":              \"Nicosia\",\n\t\"year\":              87,\n\t\"price\":\t\t\t\t\t\t\t 53.46,\n\t\"country\":             \"Italy\",\n\t\"province\":            \"Sicily & Sardinia\",\n\t\"region\":             \"Etna\",\n\t\"finca\":             \"Etna\",\n\t\"description\":         \"brisk acidity\",\n\t\"classification\":         \"Vulka Bianco\",\n\t\"local_name\":          \"Kerin OoKeefe\",\n\t\"wiki_page\": \"@kerinokeefe\"\n}"
             },
             "parameters": [],
             "headers": [

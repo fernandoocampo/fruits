@@ -1,7 +1,12 @@
 version: '3'
 services:
     fruits:
-        build: .
+        build:
+            dockerfile: Dockerfile
+            context: .
+            args:
+                appVersion: test-local
+                commitHash: test-local
         container_name: "fruits-service"
         ports:
             - "8080:8080"
