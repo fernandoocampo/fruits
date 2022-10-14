@@ -17,8 +17,6 @@ import (
 const (
 	startRecordPosition = 1
 	rowPerPage          = 10
-	base10              = 10
-	bitSize64           = 64
 )
 
 var (
@@ -31,19 +29,16 @@ func makeDecodeGetFruitWithIDRequest(logger *loggers.Logger) httptransport.Decod
 	return func(ctx context.Context, req *http.Request) (interface{}, error) {
 		v := mux.Vars(req)
 
-		fruitIDParam, ok := v["id"]
+		fruitID, ok := v["id"]
 		if !ok {
 			return nil, errNoFruitIDWasProvided
 		}
 
-		fruitID, err := strconv.ParseInt(fruitIDParam, base10, bitSize64)
-		if err != nil {
+		if fruitID == "" {
 			logger.Error(
-				"invalid fruit id",
+				"fruit id cannot be empty",
 				loggers.Fields{
-					"method":   "decodeGetFruitWithIDRequest",
-					"received": fruitIDParam,
-					"error":    err,
+					"method": "decodeGetFruitWithIDRequest",
 				},
 			)
 

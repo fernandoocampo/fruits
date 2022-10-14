@@ -1,7 +1,7 @@
 package repository
 
 // FruitID is the fruit identification type.
-type FruitID int64
+type FruitID string
 
 // Fruit contains fruit data.
 type Fruit struct {
@@ -80,8 +80,8 @@ func FruitPriceValue(v *float32) float32 {
 }
 
 // FruitIDValue returns the value of the fruit id value as a int64.
-func FruitIDValue(v FruitID) int64 {
-	return int64(v)
+func FruitIDValue(v FruitID) string {
+	return string(v)
 }
 
 // ToFruit transforms new fruit to a fruit.

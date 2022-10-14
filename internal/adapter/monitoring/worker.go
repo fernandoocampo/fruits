@@ -64,24 +64,26 @@ func New(params MonitorData) *Monitor {
 
 // Start start to push reports to the metrics repository.
 func (m *Monitor) Start(ctx context.Context) {
-	for {
-		select {
-		case <-ctx.Done():
-			if ctx.Err() != nil {
-				m.logger.Info("receiving signal to finish context", loggers.Fields{"reason": ctx.Err().Error()})
-			}
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				if ctx.Err() != nil {
+					m.logger.Info("receiving signal to finish context", loggers.Fields{"reason": ctx.Err().Error()})
+				}
 
-			return
-		case metricName, ok := <-m.eventStream:
-			if !ok {
 				return
-			}
+			case metricName, ok := <-m.eventStream:
+				if !ok {
+					return
+				}
 
-			m.report[metricName]++
-		case <-m.ticker.C:
-			m.Flush()
+				m.report[metricName]++
+			case <-m.ticker.C:
+				m.Flush()
+			}
 		}
-	}
+	}()
 }
 
 // CountRequest count a request.

@@ -1,5 +1,29 @@
 version: '3'
 services:
+    localstack:
+        image: localstack/localstack:latest
+        environment: 
+            - AWS_DEFAULT_REGION=us-east-1
+            - EDGE_PORT=4566
+            - SERVICES=dynamodb
+        ports: 
+            - '4566:4566'
+    setup-resources:
+        image: amazon/aws-cli
+        environment:
+        - AWS_ACCESS_KEY_ID=dummyaccess
+        - AWS_SECRET_ACCESS_KEY=dummysecret
+        - AWS_DEFAULT_REGION=us-east-1
+        entrypoint: /bin/sh -c
+        command: >
+            "
+                # Needed so all localstack components will startup correctly (i'm sure there's a better way to do this)
+                sleep 5;
+                aws dynamodb create-table --table-name fruits --attribute-definitions AttributeName=id,AttributeType=S --key-schema AttributeName=id,KeyType=HASH --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 --endpoint-url http://localstack:4566 --region us-east-1;
+                # you can go on and put initial items in tables...
+            "
+        depends_on:
+            - localstack
     fruits:
         build:
             dockerfile: Dockerfile
@@ -16,3 +40,5 @@ services:
             - METRICS_INTERVAL_MILLIS=60000
             - FILE_PATH=/opt/fruits/fruitmag-data.csv
             - LOAD_DATASET=true
+            - CLOUD_REGION=us-east-1
+            - CLOUD_ENDPOINT_URL=http://localstack:4566

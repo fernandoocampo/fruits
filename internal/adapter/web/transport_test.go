@@ -30,7 +30,7 @@ type webResultSearchFruits struct {
 
 type webResultCreateFruit struct {
 	Success bool     `json:"success"`
-	Data    int64    `json:"data"`
+	Data    string   `json:"data"`
 	Errors  []string `json:"errors"`
 }
 
@@ -49,7 +49,7 @@ func TestGetFruitSuccessfully(t *testing.T) {
 	expectedResponse := webResultGetFruit{
 		Success: true,
 		Data: &web.Fruit{
-			ID:             1234,
+			ID:             "1234",
 			Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
 			Variety:        "White Blend",
 			Vault:          "Nicosia",
@@ -65,7 +65,7 @@ func TestGetFruitSuccessfully(t *testing.T) {
 		Errors: nil,
 	}
 	fruitToReturn := fruits.Fruit{
-		ID:             1234,
+		ID:             "1234",
 		Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
 		Variety:        "White Blend",
 		Vault:          "Nicosia",
@@ -124,11 +124,11 @@ func TestSearchFruitsSuccessfully(t *testing.T) {
 		Data: &web.SearchFruitsResult{
 			Fruits: []web.FruitItemResult{
 				{
-					ID:   1234,
+					ID:   "1234",
 					Name: "Alicia",
 				},
 				{
-					ID:   1240,
+					ID:   "1240",
 					Name: "Oliver",
 				},
 			},
@@ -142,11 +142,11 @@ func TestSearchFruitsSuccessfully(t *testing.T) {
 	serviceResult := fruits.SearchFruitsResult{
 		Fruits: []fruits.FruitItem{
 			{
-				ID:   1234,
+				ID:   "1234",
 				Name: "Alicia",
 			},
 			{
-				ID:   1240,
+				ID:   "1240",
 				Name: "Oliver",
 			},
 		},
@@ -190,7 +190,7 @@ func TestSearchFruitsSuccessfully(t *testing.T) {
 func TestGetFruitNotFound(t *testing.T) {
 	t.Parallel()
 
-	fruitID := "1234"
+	fruitID := "ad1a4350-978b-4a08-83f7-20199dc8f21a"
 	expectedResponse := webResultGetFruit{
 		Success: true,
 		Data:    nil,
@@ -294,7 +294,7 @@ func TestPostFruitSuccessfully(t *testing.T) {
 		t.FailNow()
 	}
 	fruitEndpoints := fruits.Endpoints{
-		CreateFruitEndpoint: makeDummyCreateFruitSuccessfullyEndpoint(t, 1234, nil),
+		CreateFruitEndpoint: makeDummyCreateFruitSuccessfullyEndpoint(t, "1234", nil),
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
 	fruitHandler := web.NewHTTPServer(fruitEndpoints, logger)
@@ -304,7 +304,7 @@ func TestPostFruitSuccessfully(t *testing.T) {
 
 	expectedResponse := webResultCreateFruit{
 		Success: true,
-		Data:    1234,
+		Data:    "1234",
 		Errors:  nil,
 	}
 
@@ -354,7 +354,7 @@ func TestPostFruitWithError(t *testing.T) {
 		t.FailNow()
 	}
 	fruitEndpoints := fruits.Endpoints{
-		CreateFruitEndpoint: makeDummyCreateFruitSuccessfullyEndpoint(t, 0, errAnyError),
+		CreateFruitEndpoint: makeDummyCreateFruitSuccessfullyEndpoint(t, "", errAnyError),
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
 	fruitHandler := web.NewHTTPServer(fruitEndpoints, logger)
@@ -364,7 +364,7 @@ func TestPostFruitWithError(t *testing.T) {
 
 	expectedResponse := webResultCreateFruit{
 		Success: false,
-		Data:    0,
+		Data:    "",
 		Errors:  []string{"any error"},
 	}
 
@@ -439,7 +439,7 @@ func TestStatusSuccessfully(t *testing.T) {
 func makeDummyGetFruitWithIDSuccessfullyEndpoint(t *testing.T, fruitToReturn *fruits.Fruit, err error) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		t.Helper()
-		fruitID, ok := request.(int64)
+		fruitID, ok := request.(string)
 		if !ok {
 			t.Errorf("fruit id parameter is not valid: %+v", fruitID)
 			t.FailNow()
@@ -480,7 +480,7 @@ func makeDummySearchFruitsSuccessfullyEndpoint(t *testing.T, expectedFilter frui
 	}
 }
 
-func makeDummyCreateFruitSuccessfullyEndpoint(t *testing.T, newFruitID int64, err error) endpoint.Endpoint {
+func makeDummyCreateFruitSuccessfullyEndpoint(t *testing.T, newFruitID string, err error) endpoint.Endpoint {
 	t.Helper()
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		_, ok := request.(*fruits.NewFruit)

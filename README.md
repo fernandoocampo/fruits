@@ -86,6 +86,19 @@ You can use insomnia api client and use the project `insomnia-fruits-service.jso
 5. It's important to create a pipeline to run unit and integration tests, build and deploy the application in different environments.
 6. Generate documentation for the fruit service API in order to facilitate its use. For this we can use Swagger.
 
+## Using DynamoDB
+
+1. Create fruits table
+
+```sh
+aws dynamodb create-table \
+--table-name fruits \
+--attribute-definitions AttributeName=id,AttributeType=S \
+--key-schema AttributeName=id,KeyType=HASH \
+--provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
+--endpoint-url http://localhost:4566 --region us-east-1
+```
+
 
 ## deploy in kubernetes
 

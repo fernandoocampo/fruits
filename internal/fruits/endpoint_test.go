@@ -13,17 +13,17 @@ import (
 func TestGetFruitSuccessfully(t *testing.T) {
 	t.Parallel()
 
-	fruitID := int64(1234)
+	fruitID := "1234"
 	expectedResponse := fruits.GetFruitWithIDResult{
 		Fruit: &fruits.Fruit{
-			ID: 1234,
+			ID: "1234",
 		},
 		Err: "",
 	}
 	fruitRepository := fruitRepoMock{
-		repo: make(map[int64]repository.Fruit),
+		repo: make(map[string]repository.Fruit),
 	}
-	existingFruitID := int64(1234)
+	existingFruitID := "1234"
 	existingFruit := repository.Fruit{
 		ID: repository.FruitID(existingFruitID),
 	}
@@ -42,13 +42,13 @@ func TestGetFruitSuccessfully(t *testing.T) {
 func TestGetFruitNotFound(t *testing.T) {
 	t.Parallel()
 
-	fruitID := int64(1234)
+	fruitID := "1234"
 	expectedResponse := fruits.GetFruitWithIDResult{
 		Fruit: nil,
 		Err:   "record not found",
 	}
 	fruitRepository := fruitRepoMock{
-		repo: make(map[int64]repository.Fruit),
+		repo: make(map[string]repository.Fruit),
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
 	fruitService := fruits.NewService(&fruitRepository, logger)
@@ -65,7 +65,7 @@ func TestCreateFruitSuccessfully(t *testing.T) {
 	t.Parallel()
 
 	fruitRepository := fruitRepoMock{
-		repo: make(map[int64]repository.Fruit),
+		repo: make(map[string]repository.Fruit),
 	}
 	newFruit := fruits.NewFruit{
 		Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
@@ -101,10 +101,10 @@ func TestSearchFruitsEndpointSuccessfully(t *testing.T) {
 	expectedSearchResult := fruits.SearchFruitsResult{
 		Fruits: []fruits.FruitItem{
 			{
-				ID: 1234,
+				ID: "1234",
 			},
 			{
-				ID: 1240,
+				ID: "1240",
 			},
 		},
 		Total: 2,
@@ -117,10 +117,10 @@ func TestSearchFruitsEndpointSuccessfully(t *testing.T) {
 	searchResultFixture := repository.FindFruitsResult{
 		Fruits: []repository.Fruit{
 			{
-				ID: 1234,
+				ID: "1234",
 			},
 			{
-				ID: 1240,
+				ID: "1240",
 			},
 		},
 		Total: 2,
@@ -128,7 +128,7 @@ func TestSearchFruitsEndpointSuccessfully(t *testing.T) {
 		Count: 10,
 	}
 	fruitRepository := fruitRepoMock{
-		repo:         make(map[int64]repository.Fruit),
+		repo:         make(map[string]repository.Fruit),
 		searchResult: searchResultFixture,
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)

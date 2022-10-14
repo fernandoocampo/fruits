@@ -26,7 +26,7 @@ func NewFruitMiddleware(service *Service, counter MonitorCounter) *FruitMiddlewa
 }
 
 // GetFruitWithID get the fruit with the given id.
-func (w *FruitMiddleware) GetFruitWithID(ctx context.Context, fruitID int64) (*Fruit, error) {
+func (w *FruitMiddleware) GetFruitWithID(ctx context.Context, fruitID string) (*Fruit, error) {
 	w.counter.CountRequest()
 
 	fruit, err := w.next.GetFruitWithID(ctx, fruitID)
@@ -42,7 +42,7 @@ func (w *FruitMiddleware) GetFruitWithID(ctx context.Context, fruitID int64) (*F
 }
 
 // Create creates a fruit.
-func (w *FruitMiddleware) Create(ctx context.Context, newfruit NewFruit) (int64, error) {
+func (w *FruitMiddleware) Create(ctx context.Context, newfruit NewFruit) (string, error) {
 	w.counter.CountRequest()
 
 	fruitID, err := w.next.Create(ctx, newfruit)

@@ -10,8 +10,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/fernandoocampo/fruits/internal/adapter/document"
 	"github.com/fernandoocampo/fruits/internal/adapter/loggers"
-	"github.com/fernandoocampo/fruits/internal/adapter/memorydb"
 	"github.com/fernandoocampo/fruits/internal/adapter/metrics"
 	"github.com/fernandoocampo/fruits/internal/adapter/monitoring"
 	"github.com/fernandoocampo/fruits/internal/adapter/web"
@@ -33,7 +33,10 @@ type Instance struct {
 	logger        *loggers.Logger
 }
 
-var errLoadingApplication = errors.New("application setup could not be loaded")
+var (
+	errCreatingRepository = errors.New("unable to create repository client")
+	errLoadingApplication = errors.New("application setup could not be loaded")
+)
 
 // NewInstance creates a new application instance.
 func NewInstance() *Instance {
@@ -47,6 +50,9 @@ func NewInstance() *Instance {
 // Run runs fruits application.
 func (i *Instance) Run() error {
 	i.logger.Info("starting application", loggers.Fields{"pkg": "application"})
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	confError := i.loadConfiguration()
 	if confError != nil {
@@ -63,20 +69,15 @@ func (i *Instance) Run() error {
 		},
 	)
 
-	repoFruit := i.createFruitRepository()
+	repoFruit, err := i.createFruitRepository(ctx)
+	if err != nil {
+		return errLoadingApplication
+	}
+
 	serviceFruit := fruits.NewService(repoFruit, i.logger)
 
-	monitorWorker := i.createMonitoringWorker(repoFruit)
+	monitorWorker := i.createMonitoringWorker(ctx, repoFruit)
 	defer monitorWorker.Shutdown()
-
-	ctx := context.Background()
-
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
-	go func() {
-		monitorWorker.Start(ctx)
-	}()
 
 	middlewareFruit := fruits.NewFruitMiddleware(serviceFruit, monitorWorker)
 	endpoints := fruits.NewEndpoints(middlewareFruit, i.logger)
@@ -87,20 +88,16 @@ func (i *Instance) Run() error {
 
 	eventMessage := <-eventStream
 
-	i.logger.Info(
-		"ending server",
+	i.logger.Info("ending server",
 		loggers.Fields{
 			"event": eventMessage.Message,
-		},
-	)
+		})
 
 	if eventMessage.Error != nil {
-		i.logger.Error(
-			"ending server with error",
+		i.logger.Error("ending server with error",
 			loggers.Fields{
 				"error": eventMessage.Error,
-			},
-		)
+			})
 
 		return eventMessage.Error
 	}
@@ -126,7 +123,7 @@ func (i *Instance) listenToOSSignal(eventStream chan<- Event) {
 	}()
 }
 
-func (i *Instance) createMonitoringWorker(repoFruit monitoring.FruitRepository) *monitoring.Monitor {
+func (i *Instance) createMonitoringWorker(ctx context.Context, repoFruit monitoring.FruitRepository) *monitoring.Monitor {
 	stderrorLogger := loggers.NewBasicLogger(os.Stderr)
 	metrics := metrics.New(stderrorLogger)
 	monitorData := monitoring.MonitorData{
@@ -136,6 +133,7 @@ func (i *Instance) createMonitoringWorker(repoFruit monitoring.FruitRepository) 
 		Logger:            i.logger,
 	}
 	monitorWorker := monitoring.New(monitorData)
+	monitorWorker.Start(ctx)
 
 	return monitorWorker
 }
@@ -181,25 +179,21 @@ func (i *Instance) loadConfiguration() error {
 	return nil
 }
 
-func (i *Instance) createFruitRepository() *memorydb.FruitMemoryRepository {
+func (i *Instance) createFruitRepository(ctx context.Context) (*document.DynamoDB, error) {
 	i.logger.Info("initializing database", loggers.Fields{})
-	newRepository := memorydb.NewFruitRepository(i.logger)
 
-	if i.configuration.LoadDataset {
-		i.logger.Info("loading fruit dataset", loggers.Fields{})
-
-		ctx := context.Background()
-
-		err := newRepository.LoadDatasetWithFile(ctx, i.configuration.FilePath)
-		if err != nil {
-			i.logger.Error(
-				"application failed to load fruit dataset",
-				loggers.Fields{
-					"error": err,
-				},
-			)
-		}
+	dbSetup := document.Setup{
+		Logger:   i.logger,
+		Region:   i.configuration.CloudRegion,
+		Endpoint: i.configuration.CloudEndpointURL,
 	}
 
-	return newRepository
+	newRepository, err := document.NewDynamoDBClient(ctx, dbSetup)
+	if err != nil {
+		i.logger.Error("unable to create dynamodb client", loggers.Fields{"error": err})
+
+		return nil, errCreatingRepository
+	}
+
+	return newRepository, nil
 }

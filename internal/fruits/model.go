@@ -12,8 +12,8 @@ import (
 
 // FruitService defines behavior for fruit service business logic.
 type FruitService interface {
-	GetFruitWithID(ctx context.Context, fruitID int64) (*Fruit, error)
-	Create(ctx context.Context, newfruit NewFruit) (int64, error)
+	GetFruitWithID(ctx context.Context, fruitID string) (*Fruit, error)
+	Create(ctx context.Context, newfruit NewFruit) (string, error)
 	SearchFruits(ctx context.Context, givenFilter SearchFruitFilter) (*SearchFruitsResult, error)
 	DatasetStatus(ctx context.Context) DatasetStatus
 }
@@ -28,7 +28,7 @@ type DatasetState string
 
 // CreateFruitResult standard response for create Fruit.
 type CreateFruitResult struct {
-	ID  int64
+	ID  string
 	Err string
 }
 
@@ -79,7 +79,7 @@ type NewFruit struct {
 
 // Fruit contains fruit data.
 type Fruit struct {
-	ID             int64   `json:"id"`
+	ID             string  `json:"id"`
 	Name           string  `json:"name"`
 	Variety        string  `json:"variety"`
 	Vault          string  `json:"vault"`
@@ -97,7 +97,7 @@ type Fruit struct {
 
 // FruitItem contains few fruit data, just to show reference data.
 type FruitItem struct {
-	ID int64 `json:"id"`
+	ID string `json:"id"`
 	// Name fruit's name.
 	Name string `json:"name"`
 }
@@ -170,7 +170,7 @@ func (n NewFruit) Validate() error {
 }
 
 // NewFruit transforms new fruit to a fruit port out.
-func (n NewFruit) NewFruit(fruitID int64) Fruit {
+func (n NewFruit) NewFruit(fruitID string) Fruit {
 	return Fruit{
 		ID:             fruitID,
 		Name:           n.Name,
@@ -262,7 +262,7 @@ func newSearchFruitsDataResult(result *SearchFruitsResult, err error) SearchFrui
 }
 
 // newCreateFruitResult create a new CreateFruitResponse.
-func newCreateFruitResult(fruitID int64, err error) CreateFruitResult {
+func newCreateFruitResult(fruitID string, err error) CreateFruitResult {
 	var errmessage string
 
 	if err != nil {

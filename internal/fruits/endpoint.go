@@ -36,7 +36,7 @@ func NewEndpoints(service FruitService, logger *loggers.Logger) Endpoints {
 // MakeGetFruitWithIDEndpoint create endpoint for get a fruit with ID service.
 func MakeGetFruitWithIDEndpoint(srv FruitService, logger *loggers.Logger) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		fruitID, ok := request.(int64)
+		fruitID, ok := request.(string)
 		if !ok {
 			logger.Error(
 				"invalid fruit id",

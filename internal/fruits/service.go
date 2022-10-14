@@ -34,7 +34,7 @@ func NewService(fruitRepository Repository, logger *loggers.Logger) *Service {
 }
 
 // GetFruitWithID get the fruit with the given id.
-func (s *Service) GetFruitWithID(ctx context.Context, fruitID int64) (*Fruit, error) {
+func (s *Service) GetFruitWithID(ctx context.Context, fruitID string) (*Fruit, error) {
 	s.logger.Debug(
 		"getting fruit with id",
 		loggers.Fields{
@@ -71,7 +71,7 @@ func (s *Service) GetFruitWithID(ctx context.Context, fruitID int64) (*Fruit, er
 }
 
 // Create creates a fruit.
-func (s *Service) Create(ctx context.Context, newfruit NewFruit) (int64, error) {
+func (s *Service) Create(ctx context.Context, newfruit NewFruit) (string, error) {
 	s.logger.Debug(
 		"creating fruit",
 		loggers.Fields{
@@ -90,7 +90,7 @@ func (s *Service) Create(ctx context.Context, newfruit NewFruit) (int64, error) 
 			},
 		)
 
-		return 0, ErrDataAccess
+		return "", ErrDataAccess
 	}
 
 	s.logger.Info(

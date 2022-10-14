@@ -11,7 +11,7 @@ type Result struct {
 
 // Fruit contains fruit data.
 type Fruit struct {
-	ID             int64   `json:"id"`
+	ID             string  `json:"id"`
 	Name           string  `json:"name"`
 	Variety        string  `json:"variety"`
 	Vault          string  `json:"vault"`
@@ -29,7 +29,7 @@ type Fruit struct {
 
 // FruitItemResult contains data related to a fruit found during a search.
 type FruitItemResult struct {
-	ID int64 `json:"id"`
+	ID string `json:"id"`
 	// Name or name of the fruit.
 	Name string `json:"name"`
 }

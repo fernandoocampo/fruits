@@ -1,6 +1,7 @@
 package fruits_test
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/fernandoocampo/fruits/internal/adapter/repository"
@@ -47,7 +48,7 @@ func TestNewFruit(t *testing.T) {
 	t.Parallel()
 
 	expectedFruit := fruits.Fruit{
-		ID:             int64(1234),
+		ID:             strconv.Itoa(1234),
 		Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
 		Variety:        "White Blend",
 		Vault:          "Nicosia",
@@ -60,7 +61,7 @@ func TestNewFruit(t *testing.T) {
 		LocalName:      "Kerin OaKeefe",
 		WikiPage:       "@kerinokeefe",
 	}
-	givenFruitID := int64(1234)
+	givenFruitID := "1234"
 	givenNewFruit := fruits.NewFruit{
 		Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
 		Variety:        "White Blend",

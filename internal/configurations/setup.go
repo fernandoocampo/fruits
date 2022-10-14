@@ -13,8 +13,8 @@ type Application struct {
 	LogLevel              int    `env:"LOG_LEVEL" envDefault:"2"` // 1 debug
 	ApplicationPort       string `env:"APPLICATION_PORT" envDefault:":8080"`
 	MetricsIntervalMillis int    `env:"METRICS_INTERVAL_MILLIS" envDefault:"60000"`
-	FilePath              string `env:"FILE_PATH" envDefault:"/opt/fruits/fruitmag-data.csv"`
-	LoadDataset           bool   `env:"LOAD_DATASET" envDefault:"true"`
+	CloudRegion           string `env:"CLOUD_REGION" envDefault:"us-east-1"`
+	CloudEndpointURL      string `env:"CLOUD_ENDPOINT_URL" envDefault:"aws"`
 }
 
 // Load load application configuration.

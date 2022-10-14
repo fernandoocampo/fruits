@@ -8,6 +8,7 @@ import (
 	"github.com/fernandoocampo/fruits/internal/adapter/loggers"
 	"github.com/fernandoocampo/fruits/internal/adapter/repository"
 	"github.com/fernandoocampo/fruits/internal/fruits"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,9 +17,9 @@ var errAnyError = errors.New("something went wrong accessing db")
 func TestFindFruitSuccessfully(t *testing.T) {
 	t.Parallel()
 
-	fruitID := int64(1234)
+	fruitID := "1234"
 	expectedFruit := fruits.Fruit{
-		ID:             1234,
+		ID:             "1234",
 		Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
 		Variety:        "White Blend",
 		Vault:          "Nicosia",
@@ -32,8 +33,8 @@ func TestFindFruitSuccessfully(t *testing.T) {
 		WikiPage:       "@kerinokeefe",
 	}
 	fruitRepository := new(fruitRepoMock)
-	fruitRepository.repo = make(map[int64]repository.Fruit)
-	existingFruitID := int64(1234)
+	fruitRepository.repo = make(map[string]repository.Fruit)
+	existingFruitID := "1234"
 	existingFruit := repository.Fruit{
 		ID:             repository.FruitID(existingFruitID),
 		Name:           "Nicosia 2013 Vulka Bianco  (Etna)",
@@ -62,9 +63,9 @@ func TestFindFruitSuccessfully(t *testing.T) {
 func TestFindFruitNotFound(t *testing.T) {
 	t.Parallel()
 
-	fruitID := int64(1234)
+	fruitID := "1234"
 	fruitRepository := fruitRepoMock{
-		repo: make(map[int64]repository.Fruit),
+		repo: make(map[string]repository.Fruit),
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
 	fruitService := fruits.NewService(&fruitRepository, logger)
@@ -79,11 +80,10 @@ func TestFindFruitNotFound(t *testing.T) {
 func TestFindFruitWithError(t *testing.T) {
 	t.Parallel()
 
-	fruitID := int64(1234)
+	fruitID := "1234"
 	fruitRepository := fruitRepoMock{
-		lastID:        0,
 		searchResult:  *new(repository.FindFruitsResult),
-		repo:          make(map[int64]repository.Fruit),
+		repo:          make(map[string]repository.Fruit),
 		err:           errAnyError,
 		dataSetStatus: *new(repository.FruitDatasetStatus),
 	}
@@ -108,11 +108,11 @@ func TestSearchFruitsSuccessfully(t *testing.T) {
 	expectedResult := fruits.SearchFruitsResult{
 		Fruits: []fruits.FruitItem{
 			{
-				ID:   1234,
+				ID:   "1234",
 				Name: "Quinta dos Avidagos 2011 Avidagos Red (Douro)",
 			},
 			{
-				ID:   1240,
+				ID:   "1240",
 				Name: "Stemmari 2013 Dalila White (Terre Siciliane)",
 			},
 		},
@@ -123,11 +123,11 @@ func TestSearchFruitsSuccessfully(t *testing.T) {
 	searchResultFixture := repository.FindFruitsResult{
 		Fruits: []repository.Fruit{
 			{
-				ID:   1234,
+				ID:   "1234",
 				Name: "Quinta dos Avidagos 2011 Avidagos Red (Douro)",
 			},
 			{
-				ID:   1240,
+				ID:   "1240",
 				Name: "Stemmari 2013 Dalila White (Terre Siciliane)",
 			},
 		},
@@ -136,9 +136,8 @@ func TestSearchFruitsSuccessfully(t *testing.T) {
 		Count: 10,
 	}
 	fruitRepository := fruitRepoMock{
-		lastID:        0,
 		err:           nil,
-		repo:          make(map[int64]repository.Fruit),
+		repo:          make(map[string]repository.Fruit),
 		searchResult:  searchResultFixture,
 		dataSetStatus: *new(repository.FruitDatasetStatus),
 	}
@@ -157,7 +156,6 @@ func TestDatasetOk(t *testing.T) {
 
 	expectedStatus := fruits.DatasetStateOK
 	fruitRepository := fruitRepoMock{
-		lastID:       0,
 		err:          nil,
 		repo:         nil,
 		searchResult: *new(repository.FindFruitsResult),
@@ -182,7 +180,6 @@ func TestDatasetWithError(t *testing.T) {
 	expectedStatus := fruits.DatasetStateError
 	expectedMessage := "dataset source was not found"
 	fruitRepository := fruitRepoMock{
-		lastID:       0,
 		err:          nil,
 		repo:         nil,
 		searchResult: *new(repository.FindFruitsResult),
@@ -203,9 +200,8 @@ func TestDatasetWithError(t *testing.T) {
 }
 
 type fruitRepoMock struct {
-	lastID        int64
 	err           error
-	repo          map[int64]repository.Fruit
+	repo          map[string]repository.Fruit
 	searchResult  repository.FindFruitsResult
 	dataSetStatus repository.FruitDatasetStatus
 }
@@ -227,12 +223,12 @@ func (u *fruitRepoMock) FindByID(_ context.Context, fruitID repository.FruitID) 
 
 func (u *fruitRepoMock) Save(ctx context.Context, fruit repository.NewFruit) (repository.FruitID, error) {
 	if u.err != nil {
-		return 0, u.err
+		return "", u.err
 	}
-	u.lastID++
-	newFruit := transformNewFruitToFruit(repository.FruitID(u.lastID), fruit)
-	u.repo[u.lastID] = newFruit
-	return repository.FruitID(u.lastID), nil
+	id := uuid.New().String()
+	newFruit := transformNewFruitToFruit(repository.FruitID(id), fruit)
+	u.repo[id] = newFruit
+	return repository.FruitID(id), nil
 }
 
 func (u *fruitRepoMock) Update(ctx context.Context, fruit repository.Fruit) error {
