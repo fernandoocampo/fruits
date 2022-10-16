@@ -17,18 +17,25 @@ type Repository interface {
 	DatasetStatus(ctx context.Context) (repository.FruitDatasetStatus, error)
 }
 
+// Publisher defines portout behavior to publish new fruits.
+type Publisher interface {
+	Publish(ctx context.Context, event repository.NewFruitEvent) error
+}
+
 // Service implements fruit management logic.
 type Service struct {
 	fruitRepository Repository
+	fruitPublisher  Publisher
 	logger          *loggers.Logger
 }
 
 var ErrDataAccess = errors.New("something went wrong accessing db")
 
 // NewService creates a new application service.
-func NewService(fruitRepository Repository, logger *loggers.Logger) *Service {
+func NewService(fruitRepository Repository, publisher Publisher, logger *loggers.Logger) *Service {
 	return &Service{
 		fruitRepository: fruitRepository,
+		fruitPublisher:  publisher,
 		logger:          logger,
 	}
 }
@@ -101,7 +108,31 @@ func (s *Service) Create(ctx context.Context, newfruit NewFruit) (string, error)
 		},
 	)
 
+	s.notifyNewFruit(repository.FruitIDValue(fruitid), newfruit)
+
 	return repository.FruitIDValue(fruitid), nil
+}
+
+func (s *Service) notifyNewFruit(id string, newfruit NewFruit) {
+	go func() {
+		event := repository.NewFruitEvent{
+			SourceID: id,
+			Name:     newfruit.Name,
+			Variety:  newfruit.Variety,
+			Price:    newfruit.Price,
+		}
+
+		err := s.fruitPublisher.Publish(context.Background(), event)
+		if err != nil {
+			s.logger.Error(
+				"unable to publish new fruit",
+				loggers.Fields{
+					"method": "Service.notifyNewFruit",
+					"event":  event,
+				},
+			)
+		}
+	}()
 }
 
 // SearchFruits search fruits who match the given filters.

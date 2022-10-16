@@ -60,6 +60,14 @@ type FruitDatasetStatus struct {
 	Message string
 }
 
+// NewFruitEvent contains data for new fruit events.
+type NewFruitEvent struct {
+	SourceID string  `json:"source_id"`
+	Name     string  `json:"name"`
+	Variety  string  `json:"variety"`
+	Price    float32 `json:"price"`
+}
+
 // FruitPrice returns a pointer to the int value passed in.
 func FruitPrice(v float32) *float32 {
 	if v == 0 {

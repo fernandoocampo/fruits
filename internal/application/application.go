@@ -14,6 +14,7 @@ import (
 	"github.com/fernandoocampo/fruits/internal/adapter/loggers"
 	"github.com/fernandoocampo/fruits/internal/adapter/metrics"
 	"github.com/fernandoocampo/fruits/internal/adapter/monitoring"
+	"github.com/fernandoocampo/fruits/internal/adapter/topic"
 	"github.com/fernandoocampo/fruits/internal/adapter/web"
 	"github.com/fernandoocampo/fruits/internal/configurations"
 	"github.com/fernandoocampo/fruits/internal/fruits"
@@ -34,6 +35,7 @@ type Instance struct {
 }
 
 var (
+	errCreatingTopic      = errors.New("unable to create topic client")
 	errCreatingRepository = errors.New("unable to create repository client")
 	errLoadingApplication = errors.New("application setup could not be loaded")
 )
@@ -74,7 +76,12 @@ func (i *Instance) Run() error {
 		return errLoadingApplication
 	}
 
-	serviceFruit := fruits.NewService(repoFruit, i.logger)
+	repoTopic, err := i.createFruitTopic(ctx)
+	if err != nil {
+		return errLoadingApplication
+	}
+
+	serviceFruit := fruits.NewService(repoFruit, repoTopic, i.logger)
 
 	monitorWorker := i.createMonitoringWorker(ctx, repoFruit)
 	defer monitorWorker.Shutdown()
@@ -196,4 +203,23 @@ func (i *Instance) createFruitRepository(ctx context.Context) (*document.DynamoD
 	}
 
 	return newRepository, nil
+}
+
+func (i *Instance) createFruitTopic(ctx context.Context) (*topic.SNS, error) {
+	i.logger.Info("initializing topic client", loggers.Fields{})
+
+	dbSetup := topic.Setup{
+		Logger:   i.logger,
+		Region:   i.configuration.CloudRegion,
+		Endpoint: i.configuration.CloudEndpointURL,
+	}
+
+	newTopic, err := topic.NewSNSClient(ctx, dbSetup)
+	if err != nil {
+		i.logger.Error("unable to create sns client", loggers.Fields{"error": err})
+
+		return nil, errCreatingTopic
+	}
+
+	return newTopic, nil
 }

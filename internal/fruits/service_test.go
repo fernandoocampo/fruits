@@ -51,7 +51,7 @@ func TestFindFruitSuccessfully(t *testing.T) {
 	}
 	fruitRepository.repo[existingFruitID] = existingFruit
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
-	fruitService := fruits.NewService(fruitRepository, logger)
+	fruitService := fruits.NewService(fruitRepository, &publisherMock{}, logger)
 	ctx := context.TODO()
 
 	fruitFound, err := fruitService.GetFruitWithID(ctx, fruitID)
@@ -68,7 +68,7 @@ func TestFindFruitNotFound(t *testing.T) {
 		repo: make(map[string]repository.Fruit),
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
-	fruitService := fruits.NewService(&fruitRepository, logger)
+	fruitService := fruits.NewService(&fruitRepository, &publisherMock{}, logger)
 	ctx := context.TODO()
 
 	fruitFound, err := fruitService.GetFruitWithID(ctx, fruitID)
@@ -88,7 +88,7 @@ func TestFindFruitWithError(t *testing.T) {
 		dataSetStatus: *new(repository.FruitDatasetStatus),
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
-	fruitService := fruits.NewService(&fruitRepository, logger)
+	fruitService := fruits.NewService(&fruitRepository, &publisherMock{}, logger)
 	ctx := context.TODO()
 
 	fruitFound, err := fruitService.GetFruitWithID(ctx, fruitID)
@@ -142,7 +142,7 @@ func TestSearchFruitsSuccessfully(t *testing.T) {
 		dataSetStatus: *new(repository.FruitDatasetStatus),
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
-	fruitService := fruits.NewService(&fruitRepository, logger)
+	fruitService := fruits.NewService(&fruitRepository, &publisherMock{}, logger)
 	ctx := context.TODO()
 
 	fruitsFound, err := fruitService.SearchFruits(ctx, givenFilter)
@@ -164,7 +164,7 @@ func TestDatasetOk(t *testing.T) {
 		},
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
-	fruitService := fruits.NewService(&fruitRepository, logger)
+	fruitService := fruits.NewService(&fruitRepository, &publisherMock{}, logger)
 	ctx := context.TODO()
 
 	got := fruitService.DatasetStatus(ctx)
@@ -189,7 +189,7 @@ func TestDatasetWithError(t *testing.T) {
 		},
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
-	fruitService := fruits.NewService(&fruitRepository, logger)
+	fruitService := fruits.NewService(&fruitRepository, &publisherMock{}, logger)
 	ctx := context.TODO()
 
 	got := fruitService.DatasetStatus(ctx)
@@ -197,6 +197,12 @@ func TestDatasetWithError(t *testing.T) {
 	assert.Equal(t, expectedStatus, got.Status)
 	assert.Equal(t, expectedMessage, got.Message)
 	assert.Greater(t, got.Timestamp, int64(0))
+}
+
+type publisherMock struct{}
+
+func (p *publisherMock) Publish(_ context.Context, event repository.NewFruitEvent) error {
+	return nil
 }
 
 type fruitRepoMock struct {

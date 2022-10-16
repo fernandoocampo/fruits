@@ -42,5 +42,9 @@ helm-lint:
 	helm lint k8s-v2/fruits
 helm-install:
 	helm install --name fruits ./k8s-v2/fruits
+create-topic:
+	aws sns create-topic --name fruits --endpoint-url http://localhost:4566 --region us-east-1
+list-sns:
+	aws sns list-topics --endpoint-url http://localhost:4566 --region us-east-1
 test:
 	go test -race ./...

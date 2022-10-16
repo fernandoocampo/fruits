@@ -29,7 +29,7 @@ func TestGetFruitSuccessfully(t *testing.T) {
 	}
 	fruitRepository.repo[existingFruitID] = existingFruit
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
-	fruitService := fruits.NewService(&fruitRepository, logger)
+	fruitService := fruits.NewService(&fruitRepository, &publisherMock{}, logger)
 	getFruitEndpoint := fruits.MakeGetFruitWithIDEndpoint(fruitService, logger)
 	ctx := context.TODO()
 
@@ -51,7 +51,7 @@ func TestGetFruitNotFound(t *testing.T) {
 		repo: make(map[string]repository.Fruit),
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
-	fruitService := fruits.NewService(&fruitRepository, logger)
+	fruitService := fruits.NewService(&fruitRepository, &publisherMock{}, logger)
 	getFruitEndpoint := fruits.MakeGetFruitWithIDEndpoint(fruitService, logger)
 	ctx := context.TODO()
 
@@ -81,7 +81,7 @@ func TestCreateFruitSuccessfully(t *testing.T) {
 		WikiPage:       "@kerinokeefe",
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
-	fruitService := fruits.NewService(&fruitRepository, logger)
+	fruitService := fruits.NewService(&fruitRepository, &publisherMock{}, logger)
 	createFruitEndpoint := fruits.MakeCreateFruitEndpoint(fruitService, logger)
 	ctx := context.TODO()
 
@@ -132,7 +132,7 @@ func TestSearchFruitsEndpointSuccessfully(t *testing.T) {
 		searchResult: searchResultFixture,
 	}
 	logger := loggers.NewLoggerWithStdout("", loggers.Debug)
-	fruitService := fruits.NewService(&fruitRepository, logger)
+	fruitService := fruits.NewService(&fruitRepository, &publisherMock{}, logger)
 	searchFruitEndpoint := fruits.MakeSearchFruitsEndpoint(fruitService, logger)
 	ctx := context.TODO()
 
