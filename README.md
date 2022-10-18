@@ -104,7 +104,7 @@ aws dynamodb create-table \
 
 * only use this with minikube
 eval $(minikube docker-env)
-docker build -t local/fruits:latest .
+docker build -t fdocampo/frutal:latest:latest .
 
 https://www.baeldung.com/ops/kubernetes-helm
 
