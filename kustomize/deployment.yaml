@@ -15,29 +15,40 @@ spec:
         app: fruits
     spec:
       containers:
-      - name: fruits
-        image: fdocampo/frutal:latest
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 8080
-        env:
-        - name: LOG_LEVEL
-          valueFrom:
-            configMapKeyRef:
-              name: fruits-configmap
-              key: log_level
-        - name: METRICS_INTERVAL_MILLIS
-          valueFrom:
-            configMapKeyRef:
-              name: fruits-configmap
-              key: metrics_interval_millis
-        - name: FILE_PATH
-          valueFrom:
-            configMapKeyRef:
-              name: fruits-configmap
-              key: file_path
-        - name: LOAD_DATASET
-          valueFrom:
-            configMapKeyRef:
-              name: fruits-configmap
-              key: load_dataset
+        - name: fruits
+          image: fdocampo/frutal:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: fruits-configmap
+                  key: log_level
+            - name: METRICS_INTERVAL_MILLIS
+              valueFrom:
+                configMapKeyRef:
+                  name: fruits-configmap
+                  key: metrics_interval_millis
+            - name: FILE_PATH
+              valueFrom:
+                configMapKeyRef:
+                  name: fruits-configmap
+                  key: file_path
+            - name: LOAD_DATASET
+              valueFrom:
+                configMapKeyRef:
+                  name: fruits-configmap
+                  key: load_dataset
+            - name: CLOUD_ENDPOINT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: fruits-configmap
+                  key: cloud_endpoint
+            - name: CLOUD_REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: fruits-configmap
+                  key: cloud_region
+
