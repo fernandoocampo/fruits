@@ -7,5 +7,5 @@ data:
   metrics_interval_millis: "60000"
   file_path: "/opt/fruits/fruitmag-data.csv"
   load_dataset: "true"
-  cloud_endpoint: "172.18.0.3:4566"
+  cloud_endpoint: "http://172.18.0.3:4566"
   cloud_region: "us-east-1"
