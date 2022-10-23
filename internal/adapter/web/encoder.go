@@ -13,6 +13,7 @@ import (
 )
 
 var (
+	errBuildingHeartbeat           = errors.New("cannot build heartbeat response")
 	errBuildingGetFruitResponse    = errors.New("cannot build get fruit response")
 	errBuildingFruitDatasetStatus  = errors.New("cannot build fruit dataset status response")
 	errBuildingCreateFruitResponse = errors.New("cannot build create fruit response")
@@ -154,6 +155,40 @@ func makeEncodeGetStatusResponse(logger *loggers.Logger) httptransport.EncodeRes
 				loggers.Fields{
 					"result": fmt.Sprintf("%+v", message),
 					"method": "encodeGetStatusResponse",
+				},
+			)
+
+			return errEncodingResultResponse
+		}
+
+		return nil
+	}
+}
+
+func makeEncodeHeartbeatResponse(logger *loggers.Logger) httptransport.EncodeResponseFunc {
+	return func(ctx context.Context, res http.ResponseWriter, response interface{}) error {
+		result, ok := response.(Result)
+		if !ok {
+			logger.Error(
+				"cannot transform to Result",
+				loggers.Fields{
+					"received": fmt.Sprintf("%T", response),
+					"method":   "encodeHeartbeatResponse",
+				},
+			)
+
+			return errBuildingHeartbeat
+		}
+
+		res.Header().Set("Content-Type", "application/json")
+
+		err := json.NewEncoder(res).Encode(result)
+		if err != nil {
+			logger.Error(
+				"cannot encode Result",
+				loggers.Fields{
+					"result": fmt.Sprintf("%+v", result),
+					"method": "encodeHeartbeatResponse",
 				},
 			)
 

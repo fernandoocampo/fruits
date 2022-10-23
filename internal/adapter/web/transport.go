@@ -1,10 +1,12 @@
 package web
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/fernandoocampo/fruits/internal/adapter/loggers"
 	"github.com/fernandoocampo/fruits/internal/fruits"
+	"github.com/go-kit/kit/endpoint"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 )
@@ -36,6 +38,31 @@ func NewHTTPServer(fruitEndpoints fruits.Endpoints, logger *loggers.Logger) http
 			makeEmptyDecoder(logger),
 			makeEncodeGetStatusResponse(logger)),
 	)
+	router.Methods(http.MethodGet).Path("/heartbeat").Handler(
+		httptransport.NewServer(
+			MakeGetHeartbeatEndpoint(logger),
+			makeEmptyDecoder(logger),
+			makeEncodeHeartbeatResponse(logger)),
+	)
 
 	return router
+}
+
+// MakeGetHeartbeatEndpoint service endpoint is a heartbeat.
+func MakeGetHeartbeatEndpoint(logger *loggers.Logger) endpoint.Endpoint {
+	return func(ctx context.Context, _ interface{}) (interface{}, error) {
+		heartbeat := Result{
+			Success: true,
+		}
+
+		logger.Debug(
+			"get fruit heartbeat",
+			loggers.Fields{
+				"method": "GetHeartbeatEndpoint",
+				"result": heartbeat,
+			},
+		)
+
+		return heartbeat, nil
+	}
 }
