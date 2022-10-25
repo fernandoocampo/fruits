@@ -14,6 +14,7 @@ import (
 // NewHTTPServer is a factory to create http servers for this project.
 func NewHTTPServer(fruitEndpoints fruits.Endpoints, logger *loggers.Logger) http.Handler {
 	router := mux.NewRouter()
+	router.Methods(http.MethodGet).Path("/home").Handler(home{})
 	router.Methods(http.MethodGet).Path("/fruit/{id}").Handler(
 		httptransport.NewServer(
 			fruitEndpoints.GetFruitWithIDEndpoint,
@@ -65,4 +66,21 @@ func MakeGetHeartbeatEndpoint(logger *loggers.Logger) endpoint.Endpoint {
 
 		return heartbeat, nil
 	}
+}
+
+type home struct{}
+
+func (h home) ServeHTTP(res http.ResponseWriter, _ *http.Request) {
+	res.Header().Set("Content-Type", "text/html;charset=UTF-8")
+	res.Write([]byte(`<!DOCTYPE html>
+	<html>
+	   <head>
+		  <title>fruits home</title>
+	   </head>
+	   <body style="background-color:grey;">
+		  <h1>Products</h1>
+		  <p>fruits service.</p>
+	   </body>
+	</html>
+	`))
 }
