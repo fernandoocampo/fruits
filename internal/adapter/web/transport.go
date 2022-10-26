@@ -17,7 +17,7 @@ const homeContent = `<!DOCTYPE html>
    <head>
 	  <title>fruits home</title>
    </head>
-   <body style="background-color:grey;">
+   <body style="background-color:green;">
 	  <h1>Products</h1>
 	  <p>fruits service.</p>
    </body>
