@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"log"
 	"net/http"
 
 	"github.com/fernandoocampo/fruits/internal/adapter/loggers"
@@ -10,6 +11,18 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 )
+
+const homeContent = `<!DOCTYPE html>
+<html>
+   <head>
+	  <title>fruits home</title>
+   </head>
+   <body style="background-color:grey;">
+	  <h1>Products</h1>
+	  <p>fruits service.</p>
+   </body>
+</html>
+`
 
 // NewHTTPServer is a factory to create http servers for this project.
 func NewHTTPServer(fruitEndpoints fruits.Endpoints, logger *loggers.Logger) http.Handler {
@@ -72,15 +85,9 @@ type home struct{}
 
 func (h home) ServeHTTP(res http.ResponseWriter, _ *http.Request) {
 	res.Header().Set("Content-Type", "text/html;charset=UTF-8")
-	res.Write([]byte(`<!DOCTYPE html>
-	<html>
-	   <head>
-		  <title>fruits home</title>
-	   </head>
-	   <body style="background-color:grey;">
-		  <h1>Products</h1>
-		  <p>fruits service.</p>
-	   </body>
-	</html>
-	`))
+
+	_, err := res.Write([]byte(homeContent))
+	if err != nil {
+		log.Println("unable to write home content", err)
+	}
 }
